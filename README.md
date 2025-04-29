@@ -11,7 +11,7 @@ https://github.com/pdx-cs-rust-web/knock-knock-2.
 
 # Build and Run
 
-By default the joke database URI is
+By default the `recipe` database URI is
 `sqlite://db/recipes.db`. You can override this with the
 `RECIPES_DB_URI` environment variable or with the `--db-uri`
 command-line argument.
@@ -20,7 +20,7 @@ To build and run this code for the first time, an initial collection of recipes
 should be loaded into a newly-create database. This can be done by running
 the following command:
 
-    cargo run --release -- --init-from assets/static/jokes.json
+    cargo run --release -- --init-from assets/static/recipes.json
 
 # Development
 
