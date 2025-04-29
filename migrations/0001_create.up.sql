@@ -7,8 +7,3 @@ CREATE TABLE recipes (
     time_to_prepare TEXT NOT NULL,
     source TEXT NOT NULL
 );
-
-CREATE TABLE ingredients (
-    recipe_id TEXT NOT NULL,
-    ingredient TEXT NOT NULL
-);

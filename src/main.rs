@@ -86,8 +86,9 @@ async fn serve() -> Result<(), Box<dyn std::error::Error>> {
 
     if let Some(path) = args.init_from {
         let recipes = read_recipes(path)?;
-        'next_recipe: for jj in recipes {
-            let j = jj.to_recipe();
+        'next_recipe:
+        for jj in recipes {
+            let (j, ts) = jj.to_recipe(); // <- capture both
             let mut jtx = db.begin().await?;
 
             let recipe_insert = sqlx::query!(
@@ -106,20 +107,20 @@ async fn serve() -> Result<(), Box<dyn std::error::Error>> {
                 continue;
             }
 
-            // for t in &j.ingredients {
-            //     let ingredient_insert = sqlx::query!(
-            //         "INSERT INTO ingredients (recipe_id, ingredient) VALUES ($1, $2);",
-            //         j.id,
-            //         t,
-            //     )
-            //     .execute(&mut *jtx)
-            //     .await;
-            //     if let Err(e) = ingredient_insert {
-            //         eprintln!("Error: Ingredient insert: {} {}: {}", j.id, t, e);
-            //         jtx.rollback().await?;
-            //         continue 'next_recipe;
-            //     }
-            // }
+            for t in ts {
+                let tag_insert = sqlx::query!(
+                    "INSERT INTO tags (recipe_id, tag) VALUES ($1, $2);",
+                    j.id,
+                    t,
+                )
+                .execute(&mut *jtx)
+                .await;
+                if let Err(e) = tag_insert {
+                    eprintln!("Error: tag insert: {} {}: {}", j.id, t, e);
+                    jtx.rollback().await?;
+                    continue 'next_recipe;
+                }
+            }
 
             jtx.commit().await?;
         }
@@ -127,11 +128,11 @@ async fn serve() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     let current_recipe = Recipe {
-        id: "mojo".to_string(),
-        dish_name: "Mojo".to_string(),
-        ingredients: ["Mo' jokes, please.".to_string()].into_iter().collect(),
+        id: "sample_dish".to_string(),
+        dish_name: "Sample Dish".to_string(),
+        ingredients: ["This, and, that".to_string()].into_iter().collect(),
         time_to_prepare: "0 minutes".to_string(),
-        source: "Unknown".to_string(),
+        source: "Link".to_string(),
     };
 
     let app_state = AppState { db, current_recipe };

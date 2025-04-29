@@ -13,6 +13,7 @@ pub struct JsonRecipe {
     ingredients: String,
     time_to_prepare: String,
     recipe_source: String,
+    tags: HashSet<String>,
 }
 
 pub struct Recipe {
@@ -30,13 +31,15 @@ pub fn read_recipes<P: AsRef<Path>>(recipe_path: P) -> Result<Vec<JsonRecipe>, R
 }
 
 impl JsonRecipe {
-    pub fn to_recipe(&self) -> Recipe {
-        Recipe {
+    pub fn to_recipe(&self) -> (Recipe, impl Iterator<Item=&str>) {
+        let recipe = Recipe {
             id: self.id.clone(),
             dish_name: self.dish_name.clone(),
             ingredients: self.ingredients.clone(),
             time_to_prepare: self.time_to_prepare.clone(),
             source: self.recipe_source.clone(),
-        }
+        };
+        let tags = self.tags.iter().map(String::deref);
+        (recipe, tags)
     }
 }
