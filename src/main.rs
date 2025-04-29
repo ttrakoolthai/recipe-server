@@ -114,6 +114,7 @@ async fn serve() -> Result<(), Box<dyn std::error::Error>> {
                 if let Err(e) = tag_insert {
                     eprintln!("error: tag insert: {} {}: {}", j.id, t, e);
                     jtx.rollback().await?;
+
                     continue 'next_joke;
                 };
             }
