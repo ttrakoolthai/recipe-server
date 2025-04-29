@@ -1,22 +1,22 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>{{ recipe.dish_name }}</title>
-    <link rel="stylesheet" href="{{stylesheet}}">
-</head>
-<body>
-  <h1>{{ recipe.dish_name }}</h1>
+<html>
+  <head>
+    <title>Recipe-Server</title>
+    <link rel="stylesheet" href="{{ stylesheet }}">
+  </head>
+  <body>
+    <h1>&nbsp;Recipes</h1>
+    <div class="recipe">
+      <h2>&nbsp;{{ recipe.dish_name }}</h2>
 
-  <div class="recipe">
-    <h2>Ingredients</h2>
-    <p>{{ recipe.ingredients }}</p>
+      <h3>&nbsp;Ingredients</h3>
+      <p>&nbsp;{{ recipe.ingredients }}</p>
 
-    <h2>Time to Prepare</h2>
-    <p>{{ recipe.time_to_prepare }}</p>
+      <h3>&nbsp;Preparation time</h3>
+      <p>&nbsp;{{ recipe.time_to_prepare }}</p>
 
-    <h2>Source</h2>
-    <p><a href="{{ recipe.source }}" target="_blank">{{ recipe.source }}</a></p>
-  </div>
-</body>
+      <h3>&nbsp;Source</h3>
+      <p>&nbsp;<a href="{{ recipe.source }}" target="_blank">{{ recipe.source }}</a></p>
+    </div>
+  </body>
 </html>
