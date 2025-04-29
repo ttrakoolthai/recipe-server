@@ -28,6 +28,10 @@ For working on the code, run the following command:
 
     cargo install sqlx-cli`
 
+Ensure that the environment variable is set for the database:
+
+        export DATABASE_URL=sqlite://db/recipes.db
+
 * `sqlx` migrations are turned on, with reverse
   sequential migrations. Add a migration called `<name>` with
 
