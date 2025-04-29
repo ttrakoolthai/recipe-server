@@ -9,17 +9,18 @@ use serde::Deserialize;
 #[derive(Deserialize)]
 pub struct JsonRecipe {
     id: String,
-    whos_there: String,
-    answer_who: String,
-    tags: HashSet<String>,
-    source: String,
+    dish_name: String,
+    ingredients: String,
+    time_to_prepare: String,
+    recipe_source: String,
 }
 
 pub struct Recipe {
     pub id: String,
-    pub whos_there: String,
-    pub answer_who: String,
-    pub recipe_source: String,
+    pub dish_name: String,
+    pub ingredients: String,
+    pub time_to_prepare: String,
+    pub source: String,
 }
 
 pub fn read_recipes<P: AsRef<Path>>(recipe_path: P) -> Result<Vec<JsonRecipe>, RecipeServerError> {
@@ -29,14 +30,13 @@ pub fn read_recipes<P: AsRef<Path>>(recipe_path: P) -> Result<Vec<JsonRecipe>, R
 }
 
 impl JsonRecipe {
-    pub fn to_recipe(&self) -> (Recipe, impl Iterator<Item=&str>) {
-        let recipe = Recipe {
+    pub fn to_recipe(&self) -> Recipe {
+        Recipe {
             id: self.id.clone(),
-            whos_there: self.whos_there.clone(),
-            answer_who: self.answer_who.clone(),
-            recipe_source: self.source.clone(),
-        };
-        let tags = self.tags.iter().map(String::deref);
-        (recipe, tags)
+            dish_name: self.dish_name.clone(),
+            ingredients: self.ingredients.clone(),
+            time_to_prepare: self.time_to_prepare.clone(),
+            source: self.recipe_source.clone(),
+        }
     }
 }

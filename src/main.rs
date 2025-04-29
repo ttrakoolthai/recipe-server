@@ -49,7 +49,7 @@ async fn get_recipe(State(app_state): State<Arc<RwLock<AppState>>>) -> response:
 fn get_db_uri(db_uri: Option<&str>) -> String {
     if let Some(db_uri) = db_uri {
         db_uri.to_string()
-    } else if let Ok(db_uri) = std::env::var("KK2_DB_URI") {
+    } else if let Ok(db_uri) = std::env::var("RECIPES_DB_URI") {
         db_uri
     } else {
         "sqlite://db/recipes.db".to_string()
@@ -83,17 +83,20 @@ async fn serve() -> Result<(), Box<dyn std::error::Error>> {
 
     let db = SqlitePool::connect(&db_uri).await?;
     sqlx::migrate!().run(&db).await?;
+
     if let Some(path) = args.init_from {
-        let recipes= read_recipes(path)?;
-        'next_recipe: for jj in recipes{
+        let recipes = read_recipes(path)?;
+        'next_recipe: for jj in recipes {
+            let j = jj.to_recipe();
             let mut jtx = db.begin().await?;
-            let (j, ts) = jj.to_recipe();
+
             let recipe_insert = sqlx::query!(
-                "INSERT INTO recipes (id, whos_there, answer_who, recipe_source) VALUES ($1, $2, $3, $4);",
+                "INSERT INTO recipes (id, dish_name, ingredients, time_to_prepare, source) VALUES ($1, $2, $3, $4, $5);",
                 j.id,
-                j.whos_there,
-                j.answer_who,
-                j.recipe_source,
+                j.dish_name,
+                j.ingredients,
+                j.time_to_prepare,
+                j.source,
             )
             .execute(&mut *jtx)
             .await;
@@ -101,44 +104,53 @@ async fn serve() -> Result<(), Box<dyn std::error::Error>> {
                 eprintln!("Error: Recipe insert: {}: {}", j.id, e);
                 jtx.rollback().await?;
                 continue;
-            };
-            for t in ts {
-                let tag_insert =
-                    sqlx::query!("INSERT INTO tags (recipe_id, tag) VALUES ($1, $2);", j.id, t,)
-                        .execute(&mut *jtx)
-                        .await;
-                if let Err(e) = tag_insert {
-                    eprintln!("error: tag insert: {} {}: {}", j.id, t, e);
-                    jtx.rollback().await?;
-                    continue 'next_recipe;
-                };
             }
+
+            // for t in &j.ingredients {
+            //     let ingredient_insert = sqlx::query!(
+            //         "INSERT INTO ingredients (recipe_id, ingredient) VALUES ($1, $2);",
+            //         j.id,
+            //         t,
+            //     )
+            //     .execute(&mut *jtx)
+            //     .await;
+            //     if let Err(e) = ingredient_insert {
+            //         eprintln!("Error: Ingredient insert: {} {}: {}", j.id, t, e);
+            //         jtx.rollback().await?;
+            //         continue 'next_recipe;
+            //     }
+            // }
+
             jtx.commit().await?;
         }
         return Ok(());
     }
-    let current_recipe= Recipe {
+
+    let current_recipe = Recipe {
         id: "mojo".to_string(),
-        whos_there: "Mojo".to_string(),
-        answer_who: "Mo' jokes, please.".to_string(),
-        recipe_source: "Unknown".to_string(),
+        dish_name: "Mojo".to_string(),
+        ingredients: ["Mo' jokes, please.".to_string()].into_iter().collect(),
+        time_to_prepare: "0 minutes".to_string(),
+        source: "Unknown".to_string(),
     };
+
     let app_state = AppState { db, current_recipe };
     let state = Arc::new(RwLock::new(app_state));
 
     tracing_subscriber::registry()
         .with(
             tracing_subscriber::EnvFilter::try_from_default_env()
-                .unwrap_or_else(|_| "kk2=debug,info".into()),
+                .unwrap_or_else(|_| "recipe-server=debug,info".into()),
         )
         .with(tracing_subscriber::fmt::layer())
         .init();
-    // https://carlosmv.hashnode.dev/adding-logging-and-tracing-to-an-axum-app-rust
+
     let trace_layer = trace::TraceLayer::new_for_http()
         .make_span_with(trace::DefaultMakeSpan::new().level(tracing::Level::INFO))
         .on_response(trace::DefaultOnResponse::new().level(tracing::Level::INFO));
 
     let mime_favicon = "image/vnd.microsoft.icon".parse().unwrap();
+
     let app = axum::Router::new()
         .route("/", routing::get(get_recipe))
         .route_service(
@@ -160,7 +172,7 @@ async fn serve() -> Result<(), Box<dyn std::error::Error>> {
 #[tokio::main]
 async fn main() {
     if let Err(err) = serve().await {
-        eprintln!("kk2: error: {}", err);
+        eprintln!("recipe-server: error: {}", err);
         std::process::exit(1);
     }
 }
