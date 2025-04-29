@@ -30,6 +30,7 @@ struct Args {
 struct AppState {
     db: SqlitePool,
     current_recipe: Recipe,
+    current_tags: Vec<String>,
 }
 
 async fn get_recipe(State(app_state): State<Arc<RwLock<AppState>>>) -> response::Html<String> {
@@ -39,11 +40,36 @@ async fn get_recipe(State(app_state): State<Arc<RwLock<AppState>>>) -> response:
         .fetch_one(db)
         .await;
     match recipe_result {
-        Ok(recipe) => app_state.current_recipe = recipe,
+        Ok(recipe) => {
+            let recipe_id = recipe.id.clone();
+            app_state.current_recipe = recipe;
+            let db = &app_state.db;
+            match get_tags(db, &recipe_id).await {
+                Ok(tags) => app_state.current_tags = tags,
+                Err(e) => {
+                    log::warn!("Tag fetch failed: {}", e);
+                    app_state.current_tags = vec![];
+                }
+            }
+        }
         Err(e) => log::warn!("Recipe fetch failed: {}", e),
     }
-    let recipe = IndexTemplate::recipe(&app_state.current_recipe);
+    let recipe = IndexTemplate::recipe(&app_state.current_recipe, &app_state.current_tags);
     response::Html(recipe.to_string())
+}
+
+async fn get_tags(db: &SqlitePool, recipe_id: &str) -> Result<Vec<String>, sqlx::Error> {
+    let tags = sqlx::query_scalar!(
+        r#"
+        SELECT tag FROM tags
+        WHERE recipe_id = $1
+        "#,
+        recipe_id
+    )
+    .fetch_all(db)
+    .await?;
+
+    Ok(tags)
 }
 
 fn get_db_uri(db_uri: Option<&str>) -> String {
@@ -86,8 +112,7 @@ async fn serve() -> Result<(), Box<dyn std::error::Error>> {
 
     if let Some(path) = args.init_from {
         let recipes = read_recipes(path)?;
-        'next_recipe:
-        for jj in recipes {
+        'next_recipe: for jj in recipes {
             let (j, ts) = jj.to_recipe(); // <- capture both
             let mut jtx = db.begin().await?;
 
@@ -135,7 +160,13 @@ async fn serve() -> Result<(), Box<dyn std::error::Error>> {
         source: "Link".to_string(),
     };
 
-    let app_state = AppState { db, current_recipe };
+    let current_tags = vec!["tag1".to_string(), "tag2".to_string(), "tag2".to_string()];
+
+    let app_state = AppState {
+        db,
+        current_recipe,
+        current_tags,
+    };
     let state = Arc::new(RwLock::new(app_state));
 
     tracing_subscriber::registry()
@@ -156,7 +187,10 @@ async fn serve() -> Result<(), Box<dyn std::error::Error>> {
         .route("/", routing::get(get_recipe))
         .route_service(
             "/recipe-server.css",
-            services::ServeFile::new_with_mime("assets/static/recipe-server.css", &mime::TEXT_CSS_UTF_8),
+            services::ServeFile::new_with_mime(
+                "assets/static/recipe-server.css",
+                &mime::TEXT_CSS_UTF_8,
+            ),
         )
         .route_service(
             "/favicon.ico",

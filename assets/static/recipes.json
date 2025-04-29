@@ -1,177 +1,202 @@
 [
-    {
-      "id": "spaghetti-carbonara",
-      "dish_name": "Spaghetti Carbonara",
-      "ingredients": ["spaghetti", "eggs", "parmesan cheese", "pancetta", "black pepper"],
-      "time_to_prepare": "25 minutes",
-      "source": "https://www.bbcgoodfood.com/recipes/spaghetti-carbonara"
-    },
-    {
-      "id": "chicken-tikka-masala",
-      "dish_name": "Chicken Tikka Masala",
-      "ingredients": ["chicken thighs", "yogurt", "tomato puree", "garam masala", "garlic", "ginger"],
-      "time_to_prepare": "1 hour",
-      "source": "https://www.allrecipes.com/recipe/45736/chicken-tikka-masala/"
-    },
-    {
-      "id": "classic-pancakes",
-      "dish_name": "Classic Pancakes",
-      "ingredients": ["flour", "milk", "eggs", "butter", "baking powder"],
-      "time_to_prepare": "20 minutes",
-      "source": "https://www.allrecipes.com/recipe/21014/good-old-fashioned-pancakes/"
-    },
-    {
-      "id": "margherita-pizza",
-      "dish_name": "Margherita Pizza",
-      "ingredients": ["pizza dough", "tomato sauce", "mozzarella", "basil leaves"],
-      "time_to_prepare": "1 hour 15 minutes",
-      "source": "https://www.simplyrecipes.com/recipes/margherita_pizza/"
-    },
-    {
-      "id": "beef-stroganoff",
-      "dish_name": "Beef Stroganoff",
-      "ingredients": ["beef sirloin", "mushrooms", "onions", "sour cream", "beef broth"],
-      "time_to_prepare": "45 minutes",
-      "source": "https://www.allrecipes.com/recipe/16311/simple-beef-stroganoff/"
-    },
-    {
-      "id": "vegan-buddha-bowl",
-      "dish_name": "Vegan Buddha Bowl",
-      "ingredients": ["quinoa", "chickpeas", "avocado", "sweet potatoes", "spinach"],
-      "time_to_prepare": "45 minutes",
-      "source": "https://www.feastingathome.com/buddha-bowls/"
-    },
-    {
-      "id": "shrimp-scampi",
-      "dish_name": "Shrimp Scampi",
-      "ingredients": ["shrimp", "garlic", "butter", "lemon juice", "parsley"],
-      "time_to_prepare": "20 minutes",
-      "source": "https://www.delish.com/cooking/recipe-ideas/a19665718/easy-shrimp-scampi-recipe/"
-    },
-    {
-      "id": "buttermilk-biscuits",
-      "dish_name": "Buttermilk Biscuits",
-      "ingredients": ["flour", "butter", "buttermilk", "baking powder", "salt"],
-      "time_to_prepare": "30 minutes",
-      "source": "https://www.allrecipes.com/recipe/220751/chef-johns-buttermilk-biscuits/"
-    },
-    {
-      "id": "chocolate-chip-cookies",
-      "dish_name": "Chocolate Chip Cookies",
-      "ingredients": ["flour", "sugar", "brown sugar", "butter", "chocolate chips"],
-      "time_to_prepare": "35 minutes",
-      "source": "https://www.allrecipes.com/recipe/10813/best-chocolate-chip-cookies/"
-    },
-    {
-      "id": "avocado-toast",
-      "dish_name": "Avocado Toast",
-      "ingredients": ["bread", "avocado", "lemon juice", "salt", "pepper"],
-      "time_to_prepare": "10 minutes",
-      "source": "https://www.delish.com/cooking/recipe-ideas/a19665918/best-avocado-toast-recipe/"
-    },
-    {
-      "id": "banana-bread",
-      "dish_name": "Banana Bread",
-      "ingredients": ["bananas", "flour", "sugar", "eggs", "baking soda"],
-      "time_to_prepare": "1 hour 10 minutes",
-      "source": "https://www.simplyrecipes.com/recipes/banana_bread/"
-    },
-    {
-      "id": "grilled-cheese-sandwich",
-      "dish_name": "Grilled Cheese Sandwich",
-      "ingredients": ["bread", "cheddar cheese", "butter"],
-      "time_to_prepare": "15 minutes",
-      "source": "https://www.simplyrecipes.com/recipes/grilled_cheese_sandwich/"
-    },
-    {
-      "id": "caesar-salad",
-      "dish_name": "Caesar Salad",
-      "ingredients": ["romaine lettuce", "parmesan cheese", "croutons", "caesar dressing"],
-      "time_to_prepare": "20 minutes",
-      "source": "https://www.simplyrecipes.com/recipes/caesar_salad/"
-    },
-    {
-      "id": "tomato-soup",
-      "dish_name": "Tomato Soup",
-      "ingredients": ["tomatoes", "onion", "garlic", "vegetable broth", "cream"],
-      "time_to_prepare": "45 minutes",
-      "source": "https://www.allrecipes.com/recipe/39544/garden-fresh-tomato-soup/"
-    },
-    {
-      "id": "beef-tacos",
-      "dish_name": "Beef Tacos",
-      "ingredients": ["ground beef", "taco shells", "lettuce", "cheddar cheese", "salsa"],
-      "time_to_prepare": "30 minutes",
-      "source": "https://www.allrecipes.com/recipe/214931/classic-ground-beef-tacos/"
-    },
-    {
-      "id": "vegetable-stir-fry",
-      "dish_name": "Vegetable Stir Fry",
-      "ingredients": ["broccoli", "carrots", "bell peppers", "soy sauce", "ginger"],
-      "time_to_prepare": "25 minutes",
-      "source": "https://www.allrecipes.com/recipe/228823/quick-and-easy-vegetable-stir-fry/"
-    },
-    {
-      "id": "lasagna",
-      "dish_name": "Classic Lasagna",
-      "ingredients": ["lasagna noodles", "ground beef", "ricotta cheese", "tomato sauce", "mozzarella"],
-      "time_to_prepare": "1 hour 30 minutes",
-      "source": "https://www.simplyrecipes.com/recipes/lasagna/"
-    },
-    {
-      "id": "fried-rice",
-      "dish_name": "Fried Rice",
-      "ingredients": ["rice", "eggs", "carrots", "peas", "soy sauce"],
-      "time_to_prepare": "30 minutes",
-      "source": "https://www.allrecipes.com/recipe/79543/fried-rice-restaurant-style/"
-    },
-    {
-      "id": "mac-and-cheese",
-      "dish_name": "Mac and Cheese",
-      "ingredients": ["macaroni", "cheddar cheese", "milk", "butter", "flour"],
-      "time_to_prepare": "40 minutes",
-      "source": "https://www.simplyrecipes.com/recipes/mac_and_cheese/"
-    },
-    {
-      "id": "chili",
-      "dish_name": "Classic Beef Chili",
-      "ingredients": ["ground beef", "kidney beans", "tomatoes", "onion", "chili powder"],
-      "time_to_prepare": "1 hour",
-      "source": "https://www.allrecipes.com/recipe/229960/the-best-chili/"
-    },
-    {
-      "id": "omelette",
-      "dish_name": "Cheese Omelette",
-      "ingredients": ["eggs", "cheddar cheese", "butter", "milk", "salt", "pepper"],
-      "time_to_prepare": "15 minutes",
-      "source": "https://www.allrecipes.com/recipe/222618/classic-diner-style-fluffy-omelette/"
-    },
-    {
-      "id": "chicken-noodle-soup",
-      "dish_name": "Chicken Noodle Soup",
-      "ingredients": ["chicken breast", "egg noodles", "carrots", "celery", "chicken broth"],
-      "time_to_prepare": "1 hour",
-      "source": "https://www.allrecipes.com/recipe/26460/quick-and-easy-chicken-noodle-soup/"
-    },
-    {
-      "id": "guacamole",
-      "dish_name": "Guacamole",
-      "ingredients": ["avocados", "lime juice", "onions", "cilantro", "salt"],
-      "time_to_prepare": "15 minutes",
-      "source": "https://www.simplyrecipes.com/recipes/perfect_guacamole/"
-    },
-    {
-      "id": "french-toast",
-      "dish_name": "French Toast",
-      "ingredients": ["bread", "eggs", "milk", "cinnamon", "sugar"],
-      "time_to_prepare": "20 minutes",
-      "source": "https://www.allrecipes.com/recipe/7016/french-toast-i/"
-    },
-    {
-      "id": "caprese-salad",
-      "dish_name": "Caprese Salad",
-      "ingredients": ["tomatoes", "mozzarella", "basil", "olive oil", "balsamic vinegar"],
-      "time_to_prepare": "10 minutes",
-      "source": "https://www.simplyrecipes.com/recipes/caprese_salad/"
-    }
-  ]
+  {
+    "id": "spaghetti-carbonara",
+    "dish_name": "Spaghetti Carbonara",
+    "ingredients": "spaghetti, eggs, parmesan cheese, pancetta, black pepper",
+    "time_to_prepare": "25 minutes",
+    "source": "https://www.bbcgoodfood.com/recipes/spaghetti-carbonara",
+    "tags": ["moderate-difficulty", "pasta", "moderate"]
+  },
+  {
+    "id": "chicken-tikka-masala",
+    "dish_name": "Chicken Tikka Masala",
+    "ingredients": "chicken thighs, yogurt, tomato puree, garam masala, garlic, ginger",
+    "time_to_prepare": "1 hour",
+    "source": "https://www.allrecipes.com/recipe/45736/chicken-tikka-masala/",
+    "tags": ["moderate-difficulty", "meat", "moderate"]
+  },
+  {
+    "id": "classic-pancakes",
+    "dish_name": "Classic Pancakes",
+    "ingredients": "flour, milk, eggs, butter, baking powder",
+    "time_to_prepare": "20 minutes",
+    "source": "https://www.allrecipes.com/recipe/21014/good-old-fashioned-pancakes/",
+    "tags": ["easy-to-make", "dessert", "cheap"]
+  },
+  {
+    "id": "margherita-pizza",
+    "dish_name": "Margherita Pizza",
+    "ingredients": "pizza dough, tomato sauce, mozzarella, basil leaves",
+    "time_to_prepare": "1 hour 15 minutes",
+    "source": "https://www.simplyrecipes.com/recipes/margherita_pizza/",
+    "tags": ["moderate-difficulty", "pasta", "moderate"]
+  },
+  {
+    "id": "beef-stroganoff",
+    "dish_name": "Beef Stroganoff",
+    "ingredients": "beef sirloin, mushrooms, onions, sour cream, beef broth",
+    "time_to_prepare": "45 minutes",
+    "source": "https://www.allrecipes.com/recipe/16311/simple-beef-stroganoff/",
+    "tags": ["hard-to-make", "meat", "expensive"]
+  },
+  {
+    "id": "vegan-buddha-bowl",
+    "dish_name": "Vegan Buddha Bowl",
+    "ingredients": "quinoa, chickpeas, avocado, sweet potatoes, spinach",
+    "time_to_prepare": "45 minutes",
+    "source": "https://www.feastingathome.com/buddha-bowls/",
+    "tags": ["moderate-difficulty", "vegan", "moderate"]
+  },
+  {
+    "id": "shrimp-scampi",
+    "dish_name": "Shrimp Scampi",
+    "ingredients": "shrimp, garlic, butter, lemon juice, parsley",
+    "time_to_prepare": "20 minutes",
+    "source": "https://www.delish.com/cooking/recipe-ideas/a19665718/easy-shrimp-scampi-recipe/",
+    "tags": ["easy-to-make", "seafood", "expensive"]
+  },
+  {
+    "id": "buttermilk-biscuits",
+    "dish_name": "Buttermilk Biscuits",
+    "ingredients": "flour, butter, buttermilk, baking powder, salt",
+    "time_to_prepare": "30 minutes",
+    "source": "https://www.allrecipes.com/recipe/220751/chef-johns-buttermilk-biscuits/",
+    "tags": ["easy-to-make", "dessert", "cheap"]
+  },
+  {
+    "id": "chocolate-chip-cookies",
+    "dish_name": "Chocolate Chip Cookies",
+    "ingredients": "flour, sugar, brown sugar, butter, chocolate chips",
+    "time_to_prepare": "35 minutes",
+    "source": "https://www.allrecipes.com/recipe/10813/best-chocolate-chip-cookies/",
+    "tags": ["easy-to-make", "dessert", "cheap"]
+  },
+  {
+    "id": "avocado-toast",
+    "dish_name": "Avocado Toast",
+    "ingredients": "bread, avocado, lemon juice, salt, pepper",
+    "time_to_prepare": "10 minutes",
+    "source": "https://www.delish.com/cooking/recipe-ideas/a19665918/best-avocado-toast-recipe/",
+    "tags": ["easy-to-make", "vegan", "cheap"]
+  },
+  {
+    "id": "banana-bread",
+    "dish_name": "Banana Bread",
+    "ingredients": "bananas, flour, sugar, eggs, baking soda",
+    "time_to_prepare": "1 hour 10 minutes",
+    "source": "https://www.simplyrecipes.com/recipes/banana_bread/",
+    "tags": ["moderate-difficulty", "dessert", "cheap"]
+  },
+  {
+    "id": "grilled-cheese-sandwich",
+    "dish_name": "Grilled Cheese Sandwich",
+    "ingredients": "bread, cheddar cheese, butter",
+    "time_to_prepare": "15 minutes",
+    "source": "https://www.simplyrecipes.com/recipes/grilled_cheese_sandwich/",
+    "tags": ["easy-to-make", "pasta", "cheap"]
+  },
+  {
+    "id": "caesar-salad",
+    "dish_name": "Caesar Salad",
+    "ingredients": "romaine lettuce, parmesan cheese, croutons, caesar dressing",
+    "time_to_prepare": "20 minutes",
+    "source": "https://www.simplyrecipes.com/recipes/caesar_salad/",
+    "tags": ["easy-to-make", "salad", "moderate"]
+  },
+  {
+    "id": "tomato-soup",
+    "dish_name": "Tomato Soup",
+    "ingredients": "tomatoes, onion, garlic, vegetable broth, cream",
+    "time_to_prepare": "45 minutes",
+    "source": "https://www.allrecipes.com/recipe/39544/garden-fresh-tomato-soup/",
+    "tags": ["moderate-difficulty", "soup", "cheap"]
+  },
+  {
+    "id": "beef-tacos",
+    "dish_name": "Beef Tacos",
+    "ingredients": "ground beef, taco shells, lettuce, cheddar cheese, salsa",
+    "time_to_prepare": "30 minutes",
+    "source": "https://www.allrecipes.com/recipe/214931/classic-ground-beef-tacos/",
+    "tags": ["easy-to-make", "meat", "moderate"]
+  },
+  {
+    "id": "vegetable-stir-fry",
+    "dish_name": "Vegetable Stir Fry",
+    "ingredients": "broccoli, carrots, bell peppers, soy sauce, ginger",
+    "time_to_prepare": "25 minutes",
+    "source": "https://www.allrecipes.com/recipe/228823/quick-and-easy-vegetable-stir-fry/",
+    "tags": ["easy-to-make", "vegan", "cheap"]
+  },
+  {
+    "id": "lasagna",
+    "dish_name": "Classic Lasagna",
+    "ingredients": "lasagna noodles, ground beef, ricotta cheese, tomato sauce, mozzarella",
+    "time_to_prepare": "1 hour 30 minutes",
+    "source": "https://www.simplyrecipes.com/recipes/lasagna/",
+    "tags": ["hard-to-make", "pasta", "expensive"]
+  },
+  {
+    "id": "fried-rice",
+    "dish_name": "Fried Rice",
+    "ingredients": "rice, eggs, carrots, peas, soy sauce",
+    "time_to_prepare": "30 minutes",
+    "source": "https://www.allrecipes.com/recipe/79543/fried-rice-restaurant-style/",
+    "tags": ["easy-to-make", "vegan", "cheap"]
+  },
+  {
+    "id": "mac-and-cheese",
+    "dish_name": "Mac and Cheese",
+    "ingredients": "macaroni, cheddar cheese, milk, butter, flour",
+    "time_to_prepare": "40 minutes",
+    "source": "https://www.simplyrecipes.com/recipes/mac_and_cheese/",
+    "tags": ["easy-to-make", "pasta", "cheap"]
+  },
+  {
+    "id": "chili",
+    "dish_name": "Classic Beef Chili",
+    "ingredients": "ground beef, kidney beans, tomatoes, onion, chili powder",
+    "time_to_prepare": "1 hour",
+    "source": "https://www.allrecipes.com/recipe/229960/the-best-chili/",
+    "tags": ["moderate-difficulty", "meat", "moderate"]
+  },
+  {
+    "id": "omelette",
+    "dish_name": "Cheese Omelette",
+    "ingredients": "eggs, cheddar cheese, butter, milk, salt, pepper",
+    "time_to_prepare": "15 minutes",
+    "source": "https://www.allrecipes.com/recipe/222618/classic-diner-style-fluffy-omelette/",
+    "tags": ["easy-to-make", "breakfast", "cheap"]
+  },
+  {
+    "id": "chicken-noodle-soup",
+    "dish_name": "Chicken Noodle Soup",
+    "ingredients": "chicken breast, egg noodles, carrots, celery, chicken broth",
+    "time_to_prepare": "1 hour",
+    "source": "https://www.allrecipes.com/recipe/26460/quick-and-easy-chicken-noodle-soup/",
+    "tags": ["moderate-difficulty", "soup", "moderate"]
+  },
+  {
+    "id": "guacamole",
+    "dish_name": "Guacamole",
+    "ingredients": "avocados, lime juice, onions, cilantro, salt",
+    "time_to_prepare": "15 minutes",
+    "source": "https://www.simplyrecipes.com/recipes/perfect_guacamole/",
+    "tags": ["easy-to-make", "vegan", "cheap"]
+  },
+  {
+    "id": "french-toast",
+    "dish_name": "French Toast",
+    "ingredients": "bread, eggs, milk, cinnamon, sugar",
+    "time_to_prepare": "20 minutes",
+    "source": "https://www.allrecipes.com/recipe/7016/french-toast-i/",
+    "tags": ["easy-to-make", "dessert", "cheap"]
+  },
+  {
+    "id": "caprese-salad",
+    "dish_name": "Caprese Salad",
+    "ingredients": "tomatoes, mozzarella, basil, olive oil, balsamic vinegar",
+    "time_to_prepare": "10 minutes",
+    "source": "https://www.simplyrecipes.com/recipes/caprese_salad/",
+    "tags": ["easy-to-make", "salad", "moderate"]
+  }
+]

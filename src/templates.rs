@@ -6,15 +6,15 @@ use askama::Template;
 #[template(path = "index.html")]
 pub struct IndexTemplate<'a> {
     recipe: &'a Recipe,
-    tags: Vec<String>,
+    tags: &'a Vec<String>,
     stylesheet: &'static str,
 }
 
 impl<'a> IndexTemplate<'a> {
-    pub fn recipe(recipe: &'a Recipe) -> Self {
+    pub fn recipe(recipe: &'a Recipe, tags: &'a Vec<String>) -> Self {
         Self {
             recipe,
-            tags: Vec::new(),
+            tags,
             stylesheet: "/recipe-server.css",
         }
     }

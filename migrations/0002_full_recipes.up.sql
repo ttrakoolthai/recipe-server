@@ -8,8 +8,8 @@ CREATE TABLE recipes (
   source VARCHAR(200) NOT NULL
 );
 
-CREATE TABLE tags (
-  recipe_id TEXT NOT NULL,
-  tag TEXT NOT NULL,
+CREATE TABLE IF NOT EXISTS tags (
+  recipe_id VARCHAR(200) NOT NULL,
+  tag VARCHAR(200) NOT NULL,
   FOREIGN KEY (recipe_id) REFERENCES recipes(id)
 );
