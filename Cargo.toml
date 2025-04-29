@@ -1,7 +1,7 @@
 [package]
-name = "kk2"
-version = "0.1.0"
+name = "recipe-server"
 edition = "2024"
+version = "0.1.0"
 
 [dependencies]
 askama = "0.13.1"
@@ -15,21 +15,21 @@ thiserror = "2.0.12"
 tracing = "0.1.41"
 
 [dependencies.serde]
-version = "1.0.219"
 features = ["derive"]
+version = "1.0.219"
 
 [dependencies.tokio]
-version = "1.44.2"
 features = ["full"]
+version = "1.44.2"
 
 [dependencies.tower-http]
-version = "0.6.2"
 features = ["fs", "trace"]
+version = "0.6.2"
 
 [dependencies.tracing-subscriber]
-version = "0.3.19"
 features = ["env-filter"]
+version = "0.3.19"
 
 [dependencies.sqlx]
-version = "0.8.5"
 features = ["runtime-tokio", "sqlite", "derive", "macros", "migrate", "chrono", "json"]
+version = "0.8.5"

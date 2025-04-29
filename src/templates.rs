@@ -5,15 +5,15 @@ use askama::Template;
 #[derive(Template)]
 #[template(path = "index.html")]
 pub struct IndexTemplate<'a> {
-    joke: &'a Joke,
+    recipe: &'a Recipe,
     stylesheet: &'static str,
 }
 
 impl<'a> IndexTemplate<'a> {
-    pub fn joke(joke: &'a Joke) -> Self {
+    pub fn recipe(recipe: &'a Recipe) -> Self {
         Self {
-            joke,
-            stylesheet: "/knock.css",
+            recipe,
+            stylesheet: "/recipe-server.css",
         }
     }
 }

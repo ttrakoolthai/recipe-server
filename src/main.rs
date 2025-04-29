@@ -1,9 +1,9 @@
 mod error;
-mod joke;
+mod recipe;
 mod templates;
 
 use error::*;
-use joke::*;
+use recipe::*;
 use templates::*;
 
 extern crate log;
@@ -29,21 +29,21 @@ struct Args {
 
 struct AppState {
     db: SqlitePool,
-    current_joke: Joke,
+    current_recipe: Recipe,
 }
 
-async fn get_joke(State(app_state): State<Arc<RwLock<AppState>>>) -> response::Html<String> {
+async fn get_recipe(State(app_state): State<Arc<RwLock<AppState>>>) -> response::Html<String> {
     let mut app_state = app_state.write().await;
     let db = &app_state.db;
-    let joke_result = sqlx::query_as!(Joke, "SELECT * FROM jokes ORDER BY RANDOM() LIMIT 1;")
+    let recipe_result = sqlx::query_as!(Recipe, "SELECT * FROM recipes ORDER BY RANDOM() LIMIT 1;")
         .fetch_one(db)
         .await;
-    match joke_result {
-        Ok(joke) => app_state.current_joke = joke,
-        Err(e) => log::warn!("joke fetch failed: {}", e),
+    match recipe_result {
+        Ok(recipe) => app_state.current_recipe = recipe,
+        Err(e) => log::warn!("Recipe fetch failed: {}", e),
     }
-    let joke = IndexTemplate::joke(&app_state.current_joke);
-    response::Html(joke.to_string())
+    let recipe = IndexTemplate::recipe(&app_state.current_recipe);
+    response::Html(recipe.to_string())
 }
 
 fn get_db_uri(db_uri: Option<&str>) -> String {
@@ -52,11 +52,11 @@ fn get_db_uri(db_uri: Option<&str>) -> String {
     } else if let Ok(db_uri) = std::env::var("KK2_DB_URI") {
         db_uri
     } else {
-        "sqlite://db/knock-knock.db".to_string()
+        "sqlite://db/recipes.db".to_string()
     }
 }
 
-fn extract_db_dir(db_uri: &str) -> Result<&str, KnockKnockError> {
+fn extract_db_dir(db_uri: &str) -> Result<&str, RecipeServerError> {
     if db_uri.starts_with("sqlite://") && db_uri.ends_with(".db") {
         let start = db_uri.find(':').unwrap() + 3;
         let mut path = &db_uri[start..];
@@ -67,7 +67,7 @@ fn extract_db_dir(db_uri: &str) -> Result<&str, KnockKnockError> {
         }
         Ok(path)
     } else {
-        Err(KnockKnockError::InvalidDbUri(db_uri.to_string()))
+        Err(RecipeServerError::InvalidDbUri(db_uri.to_string()))
     }
 }
 
@@ -84,50 +84,46 @@ async fn serve() -> Result<(), Box<dyn std::error::Error>> {
     let db = SqlitePool::connect(&db_uri).await?;
     sqlx::migrate!().run(&db).await?;
     if let Some(path) = args.init_from {
-        let jokes = read_jokes(path)?;
-'next_joke:
-        for jj in jokes {
+        let recipes= read_recipes(path)?;
+        'next_recipe: for jj in recipes{
             let mut jtx = db.begin().await?;
-            let (j, ts) = jj.to_joke();
-            let joke_insert = sqlx::query!(
-                "INSERT INTO jokes (id, whos_there, answer_who, joke_source) VALUES ($1, $2, $3, $4);",
+            let (j, ts) = jj.to_recipe();
+            let recipe_insert = sqlx::query!(
+                "INSERT INTO recipes (id, whos_there, answer_who, recipe_source) VALUES ($1, $2, $3, $4);",
                 j.id,
                 j.whos_there,
                 j.answer_who,
-                j.joke_source,
+                j.recipe_source,
             )
             .execute(&mut *jtx)
             .await;
-            if let Err(e) = joke_insert {
-                eprintln!("error: joke insert: {}: {}", j.id, e);
+            if let Err(e) = recipe_insert {
+                eprintln!("Error: Recipe insert: {}: {}", j.id, e);
                 jtx.rollback().await?;
                 continue;
             };
             for t in ts {
-                let tag_insert = sqlx::query!(
-                    "INSERT INTO tags (joke_id, tag) VALUES ($1, $2);",
-                    j.id,
-                    t,
-                )
-                .execute(&mut *jtx)
-                .await;
+                let tag_insert =
+                    sqlx::query!("INSERT INTO tags (recipe_id, tag) VALUES ($1, $2);", j.id, t,)
+                        .execute(&mut *jtx)
+                        .await;
                 if let Err(e) = tag_insert {
                     eprintln!("error: tag insert: {} {}: {}", j.id, t, e);
                     jtx.rollback().await?;
-                    continue 'next_joke;
+                    continue 'next_recipe;
                 };
             }
             jtx.commit().await?;
         }
         return Ok(());
     }
-    let current_joke = Joke {
+    let current_recipe= Recipe {
         id: "mojo".to_string(),
         whos_there: "Mojo".to_string(),
         answer_who: "Mo' jokes, please.".to_string(),
-        joke_source: "Unknown".to_string(),
+        recipe_source: "Unknown".to_string(),
     };
-    let app_state = AppState { db, current_joke };
+    let app_state = AppState { db, current_recipe };
     let state = Arc::new(RwLock::new(app_state));
 
     tracing_subscriber::registry()
@@ -144,10 +140,10 @@ async fn serve() -> Result<(), Box<dyn std::error::Error>> {
 
     let mime_favicon = "image/vnd.microsoft.icon".parse().unwrap();
     let app = axum::Router::new()
-        .route("/", routing::get(get_joke))
+        .route("/", routing::get(get_recipe))
         .route_service(
-            "/knock.css",
-            services::ServeFile::new_with_mime("assets/static/knock.css", &mime::TEXT_CSS_UTF_8),
+            "/recipe-server.css",
+            services::ServeFile::new_with_mime("assets/static/recipe-server.css", &mime::TEXT_CSS_UTF_8),
         )
         .route_service(
             "/favicon.ico",

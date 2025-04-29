@@ -1,6 +1,6 @@
 {
   "db_name": "SQLite",
-  "query": "SELECT * FROM jokes ORDER BY RANDOM() LIMIT 1;",
+  "query": "SELECT * FROM recipes ORDER BY RANDOM() LIMIT 1;",
   "describe": {
     "columns": [
       {
@@ -19,7 +19,7 @@
         "type_info": "Text"
       },
       {
-        "name": "joke_source",
+        "name": "recipe_source",
         "ordinal": 3,
         "type_info": "Text"
       }
@@ -28,11 +28,11 @@
       "Right": 0
     },
     "nullable": [
-      false,
+      true,
       false,
       false,
       false
     ]
   },
-  "hash": "2b952f6ef81fbffc29bd1a78de6b735bfe1d764f0daf8e8ac2ca83576d89a30e"
+  "hash": "468d1119ac62d069f558bbb8390afb1687879362727c5123bd0baa0c1d663b75"
 }

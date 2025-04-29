@@ -2,11 +2,11 @@ extern crate serde_json;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
-pub enum KnockKnockError {
-    #[error("could not find joke file: {0}")]
-    JokesNotFound(#[from] std::io::Error),
-    #[error("could not read joke file: {0}")]
-    JokeMisformat(#[from] serde_json::Error),
-    #[error("invalid database uri: {0}")]
+pub enum RecipeServerError {
+    #[error("Could not find recipe file: {0}")]
+    RecipesNotFound(#[from] std::io::Error),
+    #[error("Could not read recipe file: {0}")]
+    RecipesMisformat(#[from] serde_json::Error),
+    #[error("Invalid database uri: {0}")]
     InvalidDbUri(String),
 }
