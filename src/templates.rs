@@ -6,8 +6,8 @@ use askama::Template;
 #[template(path = "index.html")]
 pub struct IndexTemplate<'a> {
     recipe: &'a Recipe,
-    tags: &'a Vec<String>,
     stylesheet: &'static str,
+    tags: &'a Vec<String>,
 }
 
 impl<'a> IndexTemplate<'a> {
