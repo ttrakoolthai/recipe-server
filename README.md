@@ -57,3 +57,7 @@ before committing to ensure things are up to date.
 
 # License
 This work is made available under the "MIT License". See the file LICENSE.txt in this distribution for license terms.
+
+# Attrition
+
+Much of the code and the above instruitons were taken from bart masey chat gpt generated the files
