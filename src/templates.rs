@@ -4,18 +4,18 @@ use askama::Template;
 
 #[derive(Template)]
 #[template(path = "index.html")]
-pub struct IndexTemplate<'a> {
-    recipe: &'a Recipe,
+pub struct IndexTemplate {
+    joke: Joke,
     stylesheet: &'static str,
-    tags: &'a Vec<String>,
+    tags: String,
 }
 
-impl<'a> IndexTemplate<'a> {
-    pub fn recipe(recipe: &'a Recipe, tags: &'a Vec<String>) -> Self {
+impl IndexTemplate {
+    pub fn new(joke: Joke, tags: String) -> Self {
         Self {
-            recipe,
+            joke,
+            stylesheet: "/knock.css",
             tags,
-            stylesheet: "/recipe-server.css",
         }
     }
 }

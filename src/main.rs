@@ -1,22 +1,37 @@
 mod error;
-mod recipe;
+mod joke;
 mod templates;
+mod web;
+mod api;
 
 use error::*;
-use recipe::*;
+use joke::*;
 use templates::*;
 
 extern crate log;
 extern crate mime;
 
-use axum::{self, extract::State, response, routing};
+use axum::{
+    self,
+    extract::{Path, Query, State, Json},
+    http,
+    response::{self, IntoResponse},
+    routing,
+};
 use clap::Parser;
 extern crate fastrand;
-use sqlx::{SqlitePool, migrate::MigrateDatabase, sqlite};
+use serde::{Serialize, Deserialize};
+use sqlx::{Row, SqlitePool, migrate::MigrateDatabase, sqlite};
 use tokio::{net, sync::RwLock};
 use tower_http::{services, trace};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
+use utoipa::{OpenApi, ToSchema};
+use utoipa_axum::{router::OpenApiRouter, routes};
+use utoipa_rapidoc::RapiDoc;
+use utoipa_redoc::{Redoc, Servable};
+use utoipa_swagger_ui::SwaggerUi;
 
+use std::borrow::Cow;
 use std::sync::Arc;
 
 #[derive(Parser)]
@@ -29,60 +44,20 @@ struct Args {
 
 struct AppState {
     db: SqlitePool,
-    current_recipe: Recipe,
-    current_tags: Vec<String>,
+    current_joke: Joke,
 }
 
-async fn get_recipe(State(app_state): State<Arc<RwLock<AppState>>>) -> response::Html<String> {
-    let mut app_state = app_state.write().await;
-    let db = &app_state.db;
-    let recipe_result = sqlx::query_as!(Recipe, "SELECT * FROM recipes ORDER BY RANDOM() LIMIT 1;")
-        .fetch_one(db)
-        .await;
-    match recipe_result {
-        Ok(recipe) => {
-            let recipe_id = recipe.id.clone();
-            app_state.current_recipe = recipe;
-            let db = &app_state.db;
-            match get_tags(db, &recipe_id).await {
-                Ok(tags) => app_state.current_tags = tags,
-                Err(e) => {
-                    log::warn!("Tag fetch failed: {}", e);
-                    app_state.current_tags = vec![];
-                }
-            }
-        }
-        Err(e) => log::warn!("Recipe fetch failed: {}", e),
-    }
-    let recipe = IndexTemplate::recipe(&app_state.current_recipe, &app_state.current_tags);
-    response::Html(recipe.to_string())
-}
-
-async fn get_tags(db: &SqlitePool, recipe_id: &str) -> Result<Vec<String>, sqlx::Error> {
-    let tags = sqlx::query_scalar!(
-        r#"
-        SELECT tag FROM tags
-        WHERE recipe_id = $1
-        "#,
-        recipe_id
-    )
-    .fetch_all(db)
-    .await?;
-
-    Ok(tags)
-}
-
-fn get_db_uri(db_uri: Option<&str>) -> String {
+fn get_db_uri(db_uri: Option<&str>) -> Cow<str> {
     if let Some(db_uri) = db_uri {
-        db_uri.to_string()
-    } else if let Ok(db_uri) = std::env::var("RECIPES_DB_URI") {
-        db_uri
+        db_uri.into()
+    } else if let Ok(db_uri) = std::env::var("DATABASE_URL") {
+        db_uri.into()
     } else {
-        "sqlite://db/recipes.db".to_string()
+        "sqlite://db/knock-knock.db".into()
     }
 }
 
-fn extract_db_dir(db_uri: &str) -> Result<&str, RecipeServerError> {
+fn extract_db_dir(db_uri: &str) -> Result<&str, KnockKnockError> {
     if db_uri.starts_with("sqlite://") && db_uri.ends_with(".db") {
         let start = db_uri.find(':').unwrap() + 3;
         let mut path = &db_uri[start..];
@@ -93,7 +68,7 @@ fn extract_db_dir(db_uri: &str) -> Result<&str, RecipeServerError> {
         }
         Ok(path)
     } else {
-        Err(RecipeServerError::InvalidDbUri(db_uri.to_string()))
+        Err(KnockKnockError::InvalidDbUri(db_uri.to_string()))
     }
 }
 
@@ -109,93 +84,98 @@ async fn serve() -> Result<(), Box<dyn std::error::Error>> {
 
     let db = SqlitePool::connect(&db_uri).await?;
     sqlx::migrate!().run(&db).await?;
-
     if let Some(path) = args.init_from {
-        let recipes = read_recipes(path)?;
-        'next_recipe: for jj in recipes {
-            let (j, ts) = jj.to_recipe(); // <- capture both
+        let jokes = read_jokes(path)?;
+        'next_joke: for jj in jokes {
             let mut jtx = db.begin().await?;
-
-            let recipe_insert = sqlx::query!(
-                "INSERT INTO recipes (id, dish_name, ingredients, time_to_prepare, source) VALUES ($1, $2, $3, $4, $5);",
+            let (j, ts) = jj.to_joke();
+            let joke_insert = sqlx::query!(
+                "INSERT INTO jokes (id, whos_there, answer_who, joke_source) VALUES ($1, $2, $3, $4);",
                 j.id,
-                j.dish_name,
-                j.ingredients,
-                j.time_to_prepare,
-                j.source,
+                j.whos_there,
+                j.answer_who,
+                j.joke_source,
             )
             .execute(&mut *jtx)
             .await;
-            if let Err(e) = recipe_insert {
-                eprintln!("Error: Recipe insert: {}: {}", j.id, e);
+            if let Err(e) = joke_insert {
+                eprintln!("error: joke insert: {}: {}", j.id, e);
                 jtx.rollback().await?;
                 continue;
-            }
-
+            };
             for t in ts {
-                let tag_insert = sqlx::query!(
-                    "INSERT INTO tags (recipe_id, tag) VALUES ($1, $2);",
-                    j.id,
-                    t,
-                )
-                .execute(&mut *jtx)
-                .await;
+                let tag_insert =
+                    sqlx::query!("INSERT INTO tags (joke_id, tag) VALUES ($1, $2);", j.id, t,)
+                        .execute(&mut *jtx)
+                        .await;
                 if let Err(e) = tag_insert {
-                    eprintln!("Error: tag insert: {} {}: {}", j.id, t, e);
+                    eprintln!("error: tag insert: {} {}: {}", j.id, t, e);
                     jtx.rollback().await?;
-                    continue 'next_recipe;
-                }
+                    continue 'next_joke;
+                };
             }
-
             jtx.commit().await?;
         }
         return Ok(());
     }
-
-    let current_recipe = Recipe {
-        id: "sample_dish".to_string(),
-        dish_name: "Sample Dish".to_string(),
-        ingredients: ["This, and, that".to_string()].into_iter().collect(),
-        time_to_prepare: "0 minutes".to_string(),
-        source: "Link".to_string(),
+    let current_joke = Joke {
+        id: "mojo".to_string(),
+        whos_there: "Mojo".to_string(),
+        answer_who: "Mo' jokes, please.".to_string(),
+        joke_source: "Unknown".to_string(),
     };
-
-    let current_tags = vec!["tag1".to_string(), "tag2".to_string(), "tag2".to_string()];
-
-    let app_state = AppState {
-        db,
-        current_recipe,
-        current_tags,
-    };
+    let app_state = AppState { db, current_joke };
     let state = Arc::new(RwLock::new(app_state));
 
     tracing_subscriber::registry()
         .with(
             tracing_subscriber::EnvFilter::try_from_default_env()
-                .unwrap_or_else(|_| "recipe-server=debug,info".into()),
+                .unwrap_or_else(|_| "kk2=debug,info".into()),
         )
         .with(tracing_subscriber::fmt::layer())
         .init();
-
+    // https://carlosmv.hashnode.dev/adding-logging-and-tracing-to-an-axum-app-rust
     let trace_layer = trace::TraceLayer::new_for_http()
         .make_span_with(trace::DefaultMakeSpan::new().level(tracing::Level::INFO))
         .on_response(trace::DefaultOnResponse::new().level(tracing::Level::INFO));
 
+    let cors = tower_http::cors::CorsLayer::new()
+        .allow_methods([http::Method::GET])
+        .allow_origin(tower_http::cors::Any);
+
+    async fn handler_404() -> axum::response::Response {
+        (http::StatusCode::NOT_FOUND, "404 Not Found").into_response()
+    }
+
     let mime_favicon = "image/vnd.microsoft.icon".parse().unwrap();
 
+    let (api_router, api) = OpenApiRouter::with_openapi(api::ApiDoc::openapi())
+        .nest("/api/v1", api::router())
+        .split_for_parts();
+
+    let swagger_ui = SwaggerUi::new("/swagger-ui")
+        .url("/api-docs/openapi.json", api.clone());
+    let redoc_ui = Redoc::with_url("/redoc", api);
+    let rapidoc_ui = RapiDoc::new("/api-docs/openapi.json").path("/rapidoc");
+
+
+
     let app = axum::Router::new()
-        .route("/", routing::get(get_recipe))
+        .route("/", routing::get(web::get_joke))
         .route_service(
-            "/recipe-server.css",
-            services::ServeFile::new_with_mime(
-                "assets/static/recipe-server.css",
-                &mime::TEXT_CSS_UTF_8,
-            ),
+            "/knock.css",
+            services::ServeFile::new_with_mime("assets/static/knock.css", &mime::TEXT_CSS_UTF_8),
         )
         .route_service(
             "/favicon.ico",
             services::ServeFile::new_with_mime("assets/static/favicon.ico", &mime_favicon),
         )
+        .merge(swagger_ui)
+        .merge(redoc_ui)
+        .merge(rapidoc_ui)
+        .merge(api_router)
+        .fallback(handler_404)
+        .layer(cors)
         .layer(trace_layer)
         .with_state(state);
 
@@ -207,7 +187,7 @@ async fn serve() -> Result<(), Box<dyn std::error::Error>> {
 #[tokio::main]
 async fn main() {
     if let Err(err) = serve().await {
-        eprintln!("recipe-server: error: {}", err);
+        eprintln!("kk2: error: {}", err);
         std::process::exit(1);
     }
 }

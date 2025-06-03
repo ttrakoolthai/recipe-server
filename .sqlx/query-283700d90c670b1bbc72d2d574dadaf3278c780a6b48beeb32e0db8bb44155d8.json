@@ -1,6 +1,6 @@
 {
   "db_name": "SQLite",
-  "query": "\n        SELECT tag FROM tags\n        WHERE recipe_id = $1\n        ",
+  "query": "SELECT tag FROM tags WHERE joke_id = $1;",
   "describe": {
     "columns": [
       {
@@ -16,5 +16,5 @@
       false
     ]
   },
-  "hash": "58ee99551c0501693acc417b118a7a1cec5191af7e07921eac20e158e2835c3c"
+  "hash": "283700d90c670b1bbc72d2d574dadaf3278c780a6b48beeb32e0db8bb44155d8"
 }

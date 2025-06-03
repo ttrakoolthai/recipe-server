@@ -1,22 +1,4 @@
-.annotation {
-    font-style: italic;
-    font-size: 60%;
-}
-
-h1 {
-    font-weight: bold;
-    font-size: 150%;
-}
-
-.recipe {
-    border: 1px solid black;
-}
-
-.error {
-    color: #881111;
-}
-
-/* .teller {
+.teller {
     font-weight: bold;
 }
 
@@ -29,7 +11,7 @@ h1 {
     font-size: 150%;
 }
 
-.joke {
+.recipe {
     border: 1px solid black;
 }
 
@@ -46,4 +28,4 @@ h1 {
 
 .error {
     color: #881111;
-} */
+}
