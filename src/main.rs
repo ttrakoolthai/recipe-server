@@ -163,8 +163,8 @@ async fn serve() -> Result<(), Box<dyn std::error::Error>> {
     let app = axum::Router::new()
         .route("/", routing::get(web::get_recipe))
         .route_service(
-            "/knock.css",
-            services::ServeFile::new_with_mime("assets/static/knock.css", &mime::TEXT_CSS_UTF_8),
+            "/recipe-server.css",
+            services::ServeFile::new_with_mime("assets/static/recipe-server.css", &mime::TEXT_CSS_UTF_8),
         )
         .route_service(
             "/favicon.ico",
