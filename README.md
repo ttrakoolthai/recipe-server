@@ -1,28 +1,36 @@
-# Recipe: A Pure Rust Recipe Webserver
-Tommy Trakoolthai 2025-05
+# Recipe Server
 
-Uses a Tokio/Axum/Askama/Sqlx/Sqlite stack to serve food recipes.
+Tommy Trakoolthai
+CS510: Rust Web Full-Stack
+
+# Description
+
+This project uses a Axum, Askama, Sqlx, Sqlite, and Tokio stack to serve food recipes. Much of the code and the
+following instructions are provided by Bart Massey in the repository:
+https://github.com/pdx-cs-rust-web/knock-knock-2.
 
 # Build and Run
 
-By default the joke database URI is
-`sqlite://db/knock-knock.db`. You can override this with the
-`DATABASE_URL` environment variable or with the `--db-uri`
+By default the `recipe` database URI is
+`sqlite://db/recipes.db`. You can override this with the
+`RECIPES_DB_URI` environment variable or with the `--db-uri`
 command-line argument.
 
-To build and run this code for the first time, you will
-probably want:
+To build and run this code for the first time, an initial collection of recipes
+should be loaded into a newly-create database. This can be done by running
+the following command:
 
-    cargo run --release -- --init-from assets/static/jokes.json
+    cargo run --release -- --init-from assets/static/recipes.json
 
-This will load an initial collection of jokes into the
-newly-created database.
+# Development
 
-## Development
-
-For working on the code, you will want to
+For working on the code, run the following command:
 
     cargo install sqlx-cli`
+
+Ensure that the environment variable is set for the database:
+
+        export DATABASE_URL=sqlite://db/recipes.db
 
 * `sqlx` migrations are turned on, with reverse
   sequential migrations. Add a migration called `<name>` with
@@ -47,8 +55,9 @@ Because of the above you may need to
 
 before committing to ensure things are up to date.
 
-## License
+# Attrition
 
-This work is made available under the "Apache 2.0 or MIT
-License". See the file `LICENSE.txt` in this distribution for
-license terms.
+Much of the code and the above instructions were taken from Bart Massey; ChatGPT was used to generate recipes.json
+
+# License
+This work is made available under the "MIT License". See the file LICENSE.txt in this distribution for license terms.

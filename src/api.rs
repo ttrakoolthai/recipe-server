@@ -3,24 +3,24 @@ use crate::*;
 #[derive(OpenApi)]
 #[openapi(
     tags(
-        (name = "kk2", description = "Knock-Knock Joke API")
+        (name = "recipe-server", description = "Recipe Server API")
     )
 )]
 pub struct ApiDoc;
 
 pub fn router() -> OpenApiRouter<Arc<RwLock<AppState>>> {
     OpenApiRouter::new()
-        .routes(routes!(get_joke))
+        .routes(routes!(get_recipe))
         .routes(routes!(get_tagged_joke))
         .routes(routes!(get_random_joke))
 }
 
-async fn get_joke_by_id(db: &SqlitePool, joke_id: &str) -> Result<response::Response, http::StatusCode> {
+async fn get_recipe_by_id(db: &SqlitePool, joke_id: &str) -> Result<response::Response, http::StatusCode> {
     let joke_result = recipe::get(db, joke_id).await;
     match joke_result {
         Ok((joke, tags)) => Ok(JsonJoke::new(joke, tags).into_response()),
         Err(e) => {
-            log::warn!("joke fetch failed: {}", e);
+            log::warn!("Recipe fetch failed: {}", e);
             Err(http::StatusCode::NOT_FOUND)
         }
     }
@@ -34,13 +34,13 @@ async fn get_joke_by_id(db: &SqlitePool, joke_id: &str) -> Result<response::Resp
         (status = 404, description = "No matching joke"),
     )
 )]
-pub async fn get_joke(
+pub async fn get_recipe (
     State(app_state): State<Arc<RwLock<AppState>>>,
     Path(joke_id): Path<String>,
 ) -> Result<response::Response, http::StatusCode> {
     let app_reader = app_state.read().await;
     let db = &app_reader.db;
-    get_joke_by_id(db, &joke_id).await
+    get_recipe_by_id(db, &joke_id).await
 }
 
 #[utoipa::path(
@@ -60,7 +60,7 @@ pub async fn get_tagged_joke(
     let db = &app_reader.db;
     let joke_result = recipe::get_tagged(db, tags.iter().map(String::as_ref)).await;
     match joke_result {
-        Ok(Some(joke_id)) => get_joke_by_id(db, &joke_id).await,
+        Ok(Some(joke_id)) => get_recipe_by_id(db, &joke_id).await,
         Ok(None) => {
             log::warn!("joke tag fetch failed tagging");
             Err(http::StatusCode::NOT_FOUND)
@@ -87,7 +87,7 @@ pub async fn get_random_joke(
     let db = &app_reader.db;
     let joke_result = recipe::get_random(db).await;
     match joke_result {
-        Ok(joke_id) => get_joke_by_id(db, &joke_id).await,
+        Ok(joke_id) => get_recipe_by_id(db, &joke_id).await,
         Err(e) => {
             log::warn!("get random joke failed: {}", e);
             Err(http::StatusCode::NOT_FOUND)
