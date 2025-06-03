@@ -15,8 +15,8 @@ pub fn router() -> OpenApiRouter<Arc<RwLock<AppState>>> {
         .routes(routes!(get_random_recipe))
 }
 
-async fn get_recipe_by_id(db: &SqlitePool, joke_id: &str) -> Result<response::Response, http::StatusCode> {
-    let recipe_result = recipe::get(db, joke_id).await;
+async fn get_recipe_by_id(db: &SqlitePool, recipe_id: &str) -> Result<response::Response, http::StatusCode> {
+    let recipe_result = recipe::get(db, recipe_id).await;
     match recipe_result {
         Ok((joke, tags)) => Ok(JsonJoke::new(joke, tags).into_response()),
         Err(e) => {
@@ -28,45 +28,45 @@ async fn get_recipe_by_id(db: &SqlitePool, joke_id: &str) -> Result<response::Re
 
 #[utoipa::path(
     get,
-    path = "/joke/{joke_id}",
+    path = "/recipe/{recipe_id}",
     responses(
-        (status = 200, description = "Get a joke by id", body = [JsonJoke]),
-        (status = 404, description = "No matching joke"),
+        (status = 200, description = "Get a recipe by id", body = [JsonJoke]),
+        (status = 404, description = "No matching recipe"),
     )
 )]
 pub async fn get_recipe(
     State(app_state): State<Arc<RwLock<AppState>>>,
-    Path(joke_id): Path<String>,
+    Path(recipe_id): Path<String>,
 ) -> Result<response::Response, http::StatusCode> {
     let app_reader = app_state.read().await;
     let db = &app_reader.db;
-    get_recipe_by_id(db, &joke_id).await
+    get_recipe_by_id(db, &recipe_id).await
 }
 
 #[utoipa::path(
     get,
-    path = "/tagged-joke",
+    path = "/tagged-recipe",
     responses(
-        (status = 200, description = "Get a joke by tags", body = [JsonJoke]),
-        (status = 404, description = "No matching jokes"),
+        (status = 200, description = "Get a recipe by tags", body = [JsonJoke]),
+        (status = 404, description = "No matching recipes"),
     )
 )]
 pub async fn get_tagged_recipe(
     State(app_state): State<Arc<RwLock<AppState>>>,
     Json(tags): Json<Vec<String>>,
 ) -> Result<response::Response, http::StatusCode> {
-    log::info!("get tagged joke: {:?}", tags);
+    log::info!("get tagged recipe: {:?}", tags);
     let app_reader = app_state.read().await;
     let db = &app_reader.db;
     let recipe_result = recipe::get_tagged(db, tags.iter().map(String::as_ref)).await;
     match recipe_result {
-        Ok(Some(joke_id)) => get_recipe_by_id(db, &joke_id).await,
+        Ok(Some(recipe_id)) => get_recipe_by_id(db, &recipe_id).await,
         Ok(None) => {
-            log::warn!("joke tag fetch failed tagging");
+            log::warn!("recipe tag fetch failed tagging");
             Err(http::StatusCode::NOT_FOUND)
         }
         Err(e) => {
-            log::warn!("joke tag fetch failed: {}", e);
+            log::warn!("recipe tag fetch failed: {}", e);
             Err(http::StatusCode::NOT_FOUND)
         }
     }
@@ -87,9 +87,9 @@ pub async fn get_random_recipe(
     let db = &app_reader.db;
     let recipe_result = recipe::get_random(db).await;
     match recipe_result {
-        Ok(joke_id) => get_recipe_by_id(db, &joke_id).await,
+        Ok(recipe_id) => get_recipe_by_id(db, &recipe_id).await,
         Err(e) => {
-            log::warn!("get random joke failed: {}", e);
+            log::warn!("get random recipe failed: {}", e);
             Err(http::StatusCode::NOT_FOUND)
         }
     }
