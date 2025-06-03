@@ -44,7 +44,7 @@ struct Args {
 
 struct AppState {
     db: SqlitePool,
-    current_joke: Joke,
+    current_joke: Recipe,
 }
 
 fn get_db_uri(db_uri: Option<&str>) -> Cow<str> {
@@ -118,7 +118,7 @@ async fn serve() -> Result<(), Box<dyn std::error::Error>> {
         }
         return Ok(());
     }
-    let current_joke = Joke {
+    let current_joke = Recipe {
         id: "mojo".to_string(),
         whos_there: "Mojo".to_string(),
         answer_who: "Mo' jokes, please.".to_string(),

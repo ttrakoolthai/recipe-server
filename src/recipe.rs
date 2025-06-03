@@ -9,7 +9,7 @@ use crate::RecipeServerError;
 use serde::Deserialize;
 
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
-pub struct JsonJoke {
+pub struct JsonRecipe {
     id: String,
     whos_there: String,
     answer_who: String,
@@ -18,21 +18,21 @@ pub struct JsonJoke {
 }
 
 #[derive(Clone)]
-pub struct Joke {
+pub struct Recipe {
     pub id: String,
     pub whos_there: String,
     pub answer_who: String,
     pub joke_source: String,
 }
 
-pub fn read_jokes<P: AsRef<Path>>(jokes_path: P) -> Result<Vec<JsonJoke>, RecipeServerError> {
+pub fn read_jokes<P: AsRef<Path>>(jokes_path: P) -> Result<Vec<JsonRecipe>, RecipeServerError> {
     let f = std::fs::File::open(jokes_path.as_ref())?;
     let jokes = serde_json::from_reader(f)?;
     Ok(jokes)
 }
 
-impl JsonJoke {
-    pub fn new(joke: Joke, tags: Vec<String>) -> Self {
+impl JsonRecipe {
+    pub fn new(joke: Recipe, tags: Vec<String>) -> Self {
         let tags = tags.into_iter().collect();
         Self {
             id: joke.id,
@@ -43,8 +43,8 @@ impl JsonJoke {
         }
     }
 
-    pub fn to_joke(&self) -> (Joke, impl Iterator<Item = &str>) {
-        let joke = Joke {
+    pub fn to_joke(&self) -> (Recipe, impl Iterator<Item = &str>) {
+        let joke = Recipe {
             id: self.id.clone(),
             whos_there: self.whos_there.clone(),
             answer_who: self.answer_who.clone(),
@@ -55,14 +55,14 @@ impl JsonJoke {
     }
 }
 
-impl axum::response::IntoResponse for &JsonJoke {
+impl axum::response::IntoResponse for &JsonRecipe {
     fn into_response(self) -> axum::response::Response {
         (http::StatusCode::OK, axum::Json(&self)).into_response()
     }
 }
 
-pub async fn get(db: &SqlitePool, joke_id: &str) -> Result<(Joke, Vec<String>), sqlx::Error> {
-    let joke = sqlx::query_as!(Joke, "SELECT * FROM jokes WHERE id = $1;", joke_id)
+pub async fn get(db: &SqlitePool, joke_id: &str) -> Result<(Recipe, Vec<String>), sqlx::Error> {
+    let joke = sqlx::query_as!(Recipe, "SELECT * FROM jokes WHERE id = $1;", joke_id)
         .fetch_one(db)
         .await?;
 

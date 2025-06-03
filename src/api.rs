@@ -18,7 +18,7 @@ pub fn router() -> OpenApiRouter<Arc<RwLock<AppState>>> {
 async fn get_recipe_by_id(db: &SqlitePool, recipe_id: &str) -> Result<response::Response, http::StatusCode> {
     let recipe_result = recipe::get(db, recipe_id).await;
     match recipe_result {
-        Ok((joke, tags)) => Ok(JsonJoke::new(joke, tags).into_response()),
+        Ok((recipe, tags)) => Ok(JsonRecipe::new(recipe, tags).into_response()),
         Err(e) => {
             log::warn!("Recipe fetch failed: {}", e);
             Err(http::StatusCode::NOT_FOUND)
@@ -30,7 +30,7 @@ async fn get_recipe_by_id(db: &SqlitePool, recipe_id: &str) -> Result<response::
     get,
     path = "/recipe/{recipe_id}",
     responses(
-        (status = 200, description = "Get a recipe by id", body = [JsonJoke]),
+        (status = 200, description = "Get a recipe by id", body = [JsonRecipe]),
         (status = 404, description = "No matching recipe"),
     )
 )]
@@ -47,7 +47,7 @@ pub async fn get_recipe(
     get,
     path = "/tagged-recipe",
     responses(
-        (status = 200, description = "Get a recipe by tags", body = [JsonJoke]),
+        (status = 200, description = "Get a recipe by tags", body = [JsonRecipe]),
         (status = 404, description = "No matching recipes"),
     )
 )]
@@ -76,7 +76,7 @@ pub async fn get_tagged_recipe(
     get,
     path = "/random-recipe",
     responses(
-        (status = 200, description = "Get a random recipe", body = [JsonJoke]),
+        (status = 200, description = "Get a random recipe", body = [JsonRecipe]),
         (status = 404, description = "No recipe"),
     )
 )]
