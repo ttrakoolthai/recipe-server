@@ -16,7 +16,7 @@ pub fn router() -> OpenApiRouter<Arc<RwLock<AppState>>> {
 }
 
 async fn get_joke_by_id(db: &SqlitePool, joke_id: &str) -> Result<response::Response, http::StatusCode> {
-    let joke_result = joke::get(db, joke_id).await;
+    let joke_result = recipe::get(db, joke_id).await;
     match joke_result {
         Ok((joke, tags)) => Ok(JsonJoke::new(joke, tags).into_response()),
         Err(e) => {
@@ -58,7 +58,7 @@ pub async fn get_tagged_joke(
     log::info!("get tagged joke: {:?}", tags);
     let app_reader = app_state.read().await;
     let db = &app_reader.db;
-    let joke_result = joke::get_tagged(db, tags.iter().map(String::as_ref)).await;
+    let joke_result = recipe::get_tagged(db, tags.iter().map(String::as_ref)).await;
     match joke_result {
         Ok(Some(joke_id)) => get_joke_by_id(db, &joke_id).await,
         Ok(None) => {
@@ -85,7 +85,7 @@ pub async fn get_random_joke(
 ) -> Result<response::Response, http::StatusCode> {
     let app_reader = app_state.read().await;
     let db = &app_reader.db;
-    let joke_result = joke::get_random(db).await;
+    let joke_result = recipe::get_random(db).await;
     match joke_result {
         Ok(joke_id) => get_joke_by_id(db, &joke_id).await,
         Err(e) => {

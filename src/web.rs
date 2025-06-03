@@ -1,28 +1,28 @@
 use crate::*;
 
 #[derive(Deserialize)]
-pub struct GetJokeParams {
+pub struct GetRecipeParams {
     id: Option<String>,
     tags: Option<String>,
 }
 
-pub async fn get_joke(
+pub async fn get_recipe(
     State(app_state): State<Arc<RwLock<AppState>>>,
-    Query(params): Query<GetJokeParams>,
+    Query(params): Query<GetRecipeParams>,
 ) -> Result<response::Response, http::StatusCode> {
     let mut app_writer = app_state.write().await;
     let db = app_writer.db.clone();
 
     // Specified.
-    if let GetJokeParams { id: Some(id), .. } = params {
-        let joke_result = joke::get(&db, &id).await;
-        let result = match joke_result {
-            Ok((joke, tags)) => {
+    if let GetRecipeParams { id: Some(id), .. } = params {
+        let recipe_result = recipe::get(&db, &id).await;
+        let result = match recipe_result {
+            Ok((recipe, tags)) => {
                 let tag_string = tags.join(", ");
 
-                app_writer.current_joke = joke.clone();
-                let joke = IndexTemplate::new(joke.clone(), tag_string);
-                Ok(response::Html(joke.to_string()).into_response())
+                app_writer.current_joke = recipe.clone();
+                let recipe = IndexTemplate::new(recipe.clone(), tag_string);
+                Ok(response::Html(recipe.to_string()).into_response())
             }
             Err(e) => {
                 log::warn!("joke fetch failed: {}", e);
@@ -32,7 +32,7 @@ pub async fn get_joke(
         return result;
     }
 
-    if let GetJokeParams { tags: Some(tags), .. } = params {
+    if let GetRecipeParams { tags: Some(tags), .. } = params {
         log::info!("joke tags: {}", tags);
 
         let mut tags_string = String::new();
@@ -43,7 +43,7 @@ pub async fn get_joke(
             }
         }
 
-        let joke_result = joke::get_tagged(&db, tags_string.split(',')).await;
+        let joke_result = recipe::get_tagged(&db, tags_string.split(',')).await;
         match joke_result {
             Ok(Some(id)) => {
                 let uri = format!("/?id={}", id);
@@ -59,8 +59,8 @@ pub async fn get_joke(
         }
     }
 
-    let joke_result = joke::get_random(&db).await;
-    match joke_result {
+    let recipe_result = recipe::get_random(&db).await;
+    match recipe_result {
         Ok(id) => {
             let uri = format!("/?id={}", id);
             Ok(response::Redirect::to(&uri).into_response())

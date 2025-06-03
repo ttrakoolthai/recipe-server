@@ -1,11 +1,11 @@
 mod error;
-mod joke;
+mod recipe;
 mod templates;
 mod web;
 mod api;
 
 use error::*;
-use joke::*;
+use recipe::*;
 use templates::*;
 
 extern crate log;
@@ -161,7 +161,7 @@ async fn serve() -> Result<(), Box<dyn std::error::Error>> {
 
 
     let app = axum::Router::new()
-        .route("/", routing::get(web::get_joke))
+        .route("/", routing::get(web::get_recipe))
         .route_service(
             "/knock.css",
             services::ServeFile::new_with_mime("assets/static/knock.css", &mime::TEXT_CSS_UTF_8),
