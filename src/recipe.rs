@@ -4,7 +4,7 @@ use std::collections::HashSet;
 use std::ops::Deref;
 use std::path::Path;
 
-use crate::KnockKnockError;
+use crate::RecipeServerError;
 
 use serde::Deserialize;
 
@@ -25,7 +25,7 @@ pub struct Joke {
     pub joke_source: String,
 }
 
-pub fn read_jokes<P: AsRef<Path>>(jokes_path: P) -> Result<Vec<JsonJoke>, KnockKnockError> {
+pub fn read_jokes<P: AsRef<Path>>(jokes_path: P) -> Result<Vec<JsonJoke>, RecipeServerError> {
     let f = std::fs::File::open(jokes_path.as_ref())?;
     let jokes = serde_json::from_reader(f)?;
     Ok(jokes)

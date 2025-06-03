@@ -57,7 +57,7 @@ fn get_db_uri(db_uri: Option<&str>) -> Cow<str> {
     }
 }
 
-fn extract_db_dir(db_uri: &str) -> Result<&str, KnockKnockError> {
+fn extract_db_dir(db_uri: &str) -> Result<&str, RecipeServerError> {
     if db_uri.starts_with("sqlite://") && db_uri.ends_with(".db") {
         let start = db_uri.find(':').unwrap() + 3;
         let mut path = &db_uri[start..];
@@ -68,7 +68,7 @@ fn extract_db_dir(db_uri: &str) -> Result<&str, KnockKnockError> {
         }
         Ok(path)
     } else {
-        Err(KnockKnockError::InvalidDbUri(db_uri.to_string()))
+        Err(RecipeServerError::InvalidDbUri(db_uri.to_string()))
     }
 }
 
@@ -187,7 +187,7 @@ async fn serve() -> Result<(), Box<dyn std::error::Error>> {
 #[tokio::main]
 async fn main() {
     if let Err(err) = serve().await {
-        eprintln!("kk2: error: {}", err);
+        eprintln!("Recipe-Server: error: {}", err);
         std::process::exit(1);
     }
 }
