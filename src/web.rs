@@ -20,12 +20,12 @@ pub async fn get_recipe(
             Ok((recipe, tags)) => {
                 let tag_string = tags.join(", ");
 
-                app_writer.current_joke = recipe.clone();
+                app_writer.current_recipe = recipe.clone();
                 let recipe = IndexTemplate::new(recipe.clone(), tag_string);
                 Ok(response::Html(recipe.to_string()).into_response())
             }
             Err(e) => {
-                log::warn!("joke fetch failed: {}", e);
+                log::warn!("recipe fetch failed: {}", e);
                 Err(http::StatusCode::NOT_FOUND)
             }
         };
@@ -33,7 +33,7 @@ pub async fn get_recipe(
     }
 
     if let GetRecipeParams { tags: Some(tags), .. } = params {
-        log::info!("joke tags: {}", tags);
+        log::info!("recipe tags: {}", tags);
 
         let mut tags_string = String::new();
         for c in tags.chars() {
@@ -43,18 +43,18 @@ pub async fn get_recipe(
             }
         }
 
-        let joke_result = recipe::get_tagged(&db, tags_string.split(',')).await;
-        match joke_result {
+        let recipe_result = recipe::get_tagged(&db, tags_string.split(',')).await;
+        match recipe_result {
             Ok(Some(id)) => {
                 let uri = format!("/?id={}", id);
                 return Ok(response::Redirect::to(&uri).into_response());
             }
             Ok(None) => {
-                log::info!("tagged joke selection was empty");
+                log::info!("tagged recipe selection was empty");
             }
             Err(e) => {
-                log::error!("tagged joke selection database error: {}", e);
-                panic!("tagged joke selection database error");
+                log::error!("tagged recipe selection database error: {}", e);
+                panic!("tagged recipe selection database error");
             }
         }
     }
@@ -66,8 +66,8 @@ pub async fn get_recipe(
             Ok(response::Redirect::to(&uri).into_response())
         }
         Err(e) => {
-            log::error!("joke selection failed: {}", e);
-            panic!("joke selection failed");
+            log::error!("recipe selection failed: {}", e);
+            panic!("recipe selection failed");
         }
     }
 }

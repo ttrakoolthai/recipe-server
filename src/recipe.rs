@@ -22,36 +22,36 @@ pub struct Recipe {
     pub id: String,
     pub whos_there: String,
     pub answer_who: String,
-    pub joke_source: String,
+    pub recipe_source: String,
 }
 
-pub fn read_jokes<P: AsRef<Path>>(jokes_path: P) -> Result<Vec<JsonRecipe>, RecipeServerError> {
-    let f = std::fs::File::open(jokes_path.as_ref())?;
-    let jokes = serde_json::from_reader(f)?;
-    Ok(jokes)
+pub fn read_recipes<P: AsRef<Path>>(recipes_path: P) -> Result<Vec<JsonRecipe>, RecipeServerError> {
+    let f = std::fs::File::open(recipes_path.as_ref())?;
+    let recipes = serde_json::from_reader(f)?;
+    Ok(recipes)
 }
 
 impl JsonRecipe {
-    pub fn new(joke: Recipe, tags: Vec<String>) -> Self {
+    pub fn new(recipe: Recipe, tags: Vec<String>) -> Self {
         let tags = tags.into_iter().collect();
         Self {
-            id: joke.id,
-            whos_there: joke.whos_there,
-            answer_who: joke.answer_who,
+            id: recipe.id,
+            whos_there: recipe.whos_there,
+            answer_who: recipe.answer_who,
             tags,
-            source: joke.joke_source,
+            source: recipe.recipe_source,
         }
     }
 
-    pub fn to_joke(&self) -> (Recipe, impl Iterator<Item = &str>) {
-        let joke = Recipe {
+    pub fn to_recipe(&self) -> (Recipe, impl Iterator<Item = &str>) {
+        let recipe = Recipe {
             id: self.id.clone(),
             whos_there: self.whos_there.clone(),
             answer_who: self.answer_who.clone(),
-            joke_source: self.source.clone(),
+            recipe_source: self.source.clone(),
         };
         let tags = self.tags.iter().map(String::deref);
-        (joke, tags)
+        (recipe, tags)
     }
 }
 
@@ -61,16 +61,16 @@ impl axum::response::IntoResponse for &JsonRecipe {
     }
 }
 
-pub async fn get(db: &SqlitePool, joke_id: &str) -> Result<(Recipe, Vec<String>), sqlx::Error> {
-    let joke = sqlx::query_as!(Recipe, "SELECT * FROM jokes WHERE id = $1;", joke_id)
+pub async fn get(db: &SqlitePool, recipe_id: &str) -> Result<(Recipe, Vec<String>), sqlx::Error> {
+    let recipe = sqlx::query_as!(Recipe, "SELECT * FROM recipes WHERE id = $1;", recipe_id)
         .fetch_one(db)
         .await?;
 
-    let tags: Vec<String> = sqlx::query_scalar!("SELECT tag FROM tags WHERE joke_id = $1;", joke_id)
+    let tags: Vec<String> = sqlx::query_scalar!("SELECT tag FROM tags WHERE recipe_id = $1;", recipe_id)
         .fetch_all(db)
         .await?;
 
-    Ok((joke, tags))
+    Ok((recipe, tags))
 }
 
 pub async fn get_tagged<'a, I>(db: &SqlitePool, tags: I) -> Result<Option<String>, sqlx::Error>
@@ -87,12 +87,12 @@ pub async fn get_tagged<'a, I>(db: &SqlitePool, tags: I) -> Result<Option<String
             .execute(&mut *jtx)
             .await?;
     }
-    let joke_ids = sqlx::query("SELECT DISTINCT joke_id FROM tags JOIN qtags ON tags.tag = qtags.tag ORDER BY RANDOM() LIMIT 1;")
+    let recipe_ids = sqlx::query("SELECT DISTINCT recipe_id FROM tags JOIN qtags ON tags.tag = qtags.tag ORDER BY RANDOM() LIMIT 1;")
         .fetch_all(&mut *jtx)
         .await?;
-    let njoke_ids = joke_ids.len();
-    let result = if njoke_ids == 1 {
-        Some(joke_ids[0].get(0))
+    let nrecipe_ids = recipe_ids.len();
+    let result = if nrecipe_ids == 1 {
+        Some(recipe_ids[0].get(0))
     } else {
         None
     };
@@ -102,7 +102,7 @@ pub async fn get_tagged<'a, I>(db: &SqlitePool, tags: I) -> Result<Option<String
 }
 
 pub async fn get_random(db: &SqlitePool) -> Result<String, sqlx::Error> {
-    sqlx::query_scalar!("SELECT id FROM jokes ORDER BY RANDOM() LIMIT 1;")
+    sqlx::query_scalar!("SELECT id FROM recipes ORDER BY RANDOM() LIMIT 1;")
         .fetch_one(db)
         .await
 }

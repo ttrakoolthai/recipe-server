@@ -44,7 +44,7 @@ struct Args {
 
 struct AppState {
     db: SqlitePool,
-    current_joke: Recipe,
+    current_recipe: Recipe,
 }
 
 fn get_db_uri(db_uri: Option<&str>) -> Cow<str> {
@@ -53,7 +53,7 @@ fn get_db_uri(db_uri: Option<&str>) -> Cow<str> {
     } else if let Ok(db_uri) = std::env::var("DATABASE_URL") {
         db_uri.into()
     } else {
-        "sqlite://db/knock-knock.db".into()
+        "sqlite://db/recipes.db".into()
     }
 }
 
@@ -85,52 +85,52 @@ async fn serve() -> Result<(), Box<dyn std::error::Error>> {
     let db = SqlitePool::connect(&db_uri).await?;
     sqlx::migrate!().run(&db).await?;
     if let Some(path) = args.init_from {
-        let jokes = read_jokes(path)?;
-        'next_joke: for jj in jokes {
+        let recipes = read_recipes (path)?;
+        'next_recipe: for jj in recipes {
             let mut jtx = db.begin().await?;
-            let (j, ts) = jj.to_joke();
-            let joke_insert = sqlx::query!(
-                "INSERT INTO jokes (id, whos_there, answer_who, joke_source) VALUES ($1, $2, $3, $4);",
+            let (j, ts) = jj.to_recipe();
+            let recipe_insert = sqlx::query!(
+                "INSERT INTO recipes (id, whos_there, answer_who, recipe_source) VALUES ($1, $2, $3, $4);",
                 j.id,
                 j.whos_there,
                 j.answer_who,
-                j.joke_source,
+                j.recipe_source,
             )
             .execute(&mut *jtx)
             .await;
-            if let Err(e) = joke_insert {
-                eprintln!("error: joke insert: {}: {}", j.id, e);
+            if let Err(e) = recipe_insert {
+                eprintln!("error: recipe insert: {}: {}", j.id, e);
                 jtx.rollback().await?;
                 continue;
             };
             for t in ts {
                 let tag_insert =
-                    sqlx::query!("INSERT INTO tags (joke_id, tag) VALUES ($1, $2);", j.id, t,)
+                    sqlx::query!("INSERT INTO tags (recipe_id, tag) VALUES ($1, $2);", j.id, t,)
                         .execute(&mut *jtx)
                         .await;
                 if let Err(e) = tag_insert {
                     eprintln!("error: tag insert: {} {}: {}", j.id, t, e);
                     jtx.rollback().await?;
-                    continue 'next_joke;
+                    continue 'next_recipe;
                 };
             }
             jtx.commit().await?;
         }
         return Ok(());
     }
-    let current_joke = Recipe {
+    let current_recipe= Recipe {
         id: "mojo".to_string(),
         whos_there: "Mojo".to_string(),
-        answer_who: "Mo' jokes, please.".to_string(),
-        joke_source: "Unknown".to_string(),
+        answer_who: "Mo' recipes, please.".to_string(),
+        recipe_source: "Unknown".to_string(),
     };
-    let app_state = AppState { db, current_joke };
+    let app_state = AppState { db, current_recipe };
     let state = Arc::new(RwLock::new(app_state));
 
     tracing_subscriber::registry()
         .with(
             tracing_subscriber::EnvFilter::try_from_default_env()
-                .unwrap_or_else(|_| "kk2=debug,info".into()),
+                .unwrap_or_else(|_| "recipe=debug,info".into()),
         )
         .with(tracing_subscriber::fmt::layer())
         .init();
