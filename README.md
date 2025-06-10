@@ -1,63 +1,75 @@
-# Recipe Server
+# knock-knock-2: A Pure Rust Knock-Knock Joke Webserver, iteration 2
+Bart Massey 2025-04
 
-Tommy Trakoolthai
-CS510: Rust Web Full-Stack
-
-# Description
-
-This project uses a Axum, Askama, Sqlx, Sqlite, and Tokio stack to serve food recipes. Much of the code and the
-following instructions are provided by Bart Massey in the repository:
-https://github.com/pdx-cs-rust-web/knock-knock-2.
+This… thing uses a Tokio/Axum/Askama/Sqlx/Sqlite stack to
+serve knock-knock jokes.
 
 # Build and Run
 
-By default the `recipe` database URI is
-`sqlite://db/recipes.db`. You can override this with the
-`RECIPES_DB_URI` environment variable or with the `--db-uri`
+By default the joke database URI is
+`sqlite://db/knock-knock.db`. You can override this with the
+`DATABASE_URL` environment variable or with the `--db-uri`
 command-line argument.
 
-To build and run this code for the first time, an initial collection of recipes
-should be loaded into a newly-create database. This can be done by running
-the following command:
+To build and run this code for the first time, you will
+probably want:
 
-    cargo run --release -- --init-from assets/static/recipes.json
+    cargo run --release -- --init-from assets/static/jokes.json
 
-# Development
+This will load an initial collection of jokes into the
+newly-created database.
 
-For working on the code, run the following command:
+## Development
 
-    cargo install sqlx-cli`
+For working on the code, you will want to
 
-Ensure that the environment variable is set for the database:
-
-        export DATABASE_URL=sqlite://db/recipes.db
+    cargo install sqlx-cli
 
 * `sqlx` migrations are turned on, with reverse
   sequential migrations. Add a migration called `<name>` with
 
         sqlx migrate add -r -s <name>
 
-  and then edit the migration files.
+  and then edit the migration files. You may want to run
+  
+        sqlx migrate run
 
 * `sqlx` compile-time checking of queries against
   the database schemas is turned on. If you modify the
   database schemas or the queries in the source code, please
   run
 
-        sqlx prepare
+        DATABASE_URL=sqlite://db/knock-knock.db cargo sqlx prepare
 
-  to update things so that users can compile before the
-  database is built and migrated.
+  to update things.
 
-Because of the above you may need to
+Because of the above you need to
 
     git add .sqlx migrations
 
 before committing to ensure things are up to date.
 
-# Attrition
+## Docker
 
-Much of the code and the above instructions were taken from Bart Massey; ChatGPT was used to generate recipes.json
 
-# License
-This work is made available under the "MIT License". See the file LICENSE.txt in this distribution for license terms.
+Install Docker CE.
+
+Before building an image, do a release build. Much of the
+image content will come from here. Then build an image with
+
+      docker build -t kk2 .
+
+You can run the image with
+
+      docker run -p 3000:3000 kk2
+
+Note that the image is built with the database from the
+build directory copied in: it will not persist across image
+builds. A named Docker volume could be used for persisting
+the database.
+
+## License
+
+This work is made available under the "Apache 2.0 or MIT
+License". See the file `LICENSE.txt` in this distribution for
+license terms.
