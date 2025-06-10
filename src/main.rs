@@ -65,11 +65,12 @@ type SharedAppState = Arc<RwLock<AppState>>;
 
 impl AppState {
     pub fn new(db: SqlitePool, jwt_keys: authjwt::JwtKeys, reg_key: String) -> Self {
-        let current_recipe= Recipe {
-            id: "mojo".to_string(),
-            whos_there: "Mojo".to_string(),
-            answer_who: "Mo' jokes, please.".to_string(),
-            recipe_source: "Unknown".to_string(),
+        let current_recipe = Recipe {
+            id: "placeholder-id".to_string(),
+            dish_name: "Sample Dish".to_string(),
+            ingredients: "example ingredient1, ingredient2".to_string(),
+            time_to_prepare: "30 minutes".to_string(),
+            source: "https://example.com".to_string(),
         };
         Self {
             db,
@@ -166,11 +167,13 @@ async fn serve() -> Result<(), Box<dyn std::error::Error>> {
             let mut jtx = db.begin().await?;
             let (j, ts) = jj.to_recipe();
             let recipe_insert = sqlx::query!(
-                "INSERT INTO recipes (id, whos_there, answer_who, recipe_source) VALUES ($1, $2, $3, $4);",
+                "INSERT INTO recipes (id, dish_name, ingredients, time_to_prepare, source)
+                 VALUES ($1, $2, $3, $4, $5);",
                 j.id,
-                j.whos_there,
-                j.answer_who,
-                j.recipe_source,
+                j.dish_name,
+                j.ingredients,
+                j.time_to_prepare,
+                j.source,
             )
             .execute(&mut *jtx)
             .await;
@@ -180,12 +183,15 @@ async fn serve() -> Result<(), Box<dyn std::error::Error>> {
                 continue;
             };
             for t in ts {
-                let tag_insert =
-                    sqlx::query!("INSERT INTO tags (recipe_id, tag) VALUES ($1, $2);", j.id, t,)
-                        .execute(&mut *jtx)
-                        .await;
+                let tag_insert = sqlx::query!(
+                    "INSERT INTO recipe_tags (recipe_id, tag) VALUES ($1, $2);",
+                    j.id,
+                    t,
+                )
+                .execute(&mut *jtx)
+                .await;
                 if let Err(e) = tag_insert {
-                    eprintln!("error: tag insert: {} {}: {}", j.id, t, e);
+                    eprintln!("Error: tag insert: {} {}: {}", j.id, t, e);
                     jtx.rollback().await?;
                     continue 'next_recipe;
                 };

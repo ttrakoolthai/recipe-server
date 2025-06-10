@@ -11,8 +11,9 @@ use serde::Deserialize;
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct JsonRecipe {
     id: String,
-    whos_there: String,
-    answer_who: String,
+    dish_name: String,
+    ingredients: String,
+    time_to_prepare: String,
     tags: HashSet<String>,
     source: String,
 }
@@ -20,9 +21,10 @@ pub struct JsonRecipe {
 #[derive(Clone)]
 pub struct Recipe {
     pub id: String,
-    pub whos_there: String,
-    pub answer_who: String,
-    pub recipe_source: String,
+    pub dish_name: String,
+    pub ingredients: String,
+    pub time_to_prepare: String,
+    pub source: String,
 }
 
 pub fn read_recipes<P: AsRef<Path>>(recipes_path: P) -> Result<Vec<JsonRecipe>, RecipeServerError> {
@@ -36,19 +38,21 @@ impl JsonRecipe {
         let tags = tags.into_iter().collect();
         Self {
             id: recipe.id,
-            whos_there: recipe.whos_there,
-            answer_who: recipe.answer_who,
+            dish_name: recipe.dish_name,
+            ingredients: recipe.ingredients,
+            time_to_prepare: recipe.time_to_prepare,
             tags,
-            source: recipe.recipe_source,
+            source: recipe.source,
         }
     }
 
     pub fn to_recipe(&self) -> (Recipe, impl Iterator<Item = &str>) {
         let recipe = Recipe {
             id: self.id.clone(),
-            whos_there: self.whos_there.clone(),
-            answer_who: self.answer_who.clone(),
-            recipe_source: self.source.clone(),
+            dish_name: self.dish_name.clone(),
+            ingredients: self.ingredients.clone(),
+            time_to_prepare: self.time_to_prepare.clone(),
+            source: self.source.clone(),
         };
         let tags = self.tags.iter().map(String::deref);
         (recipe, tags)
@@ -62,13 +66,24 @@ impl axum::response::IntoResponse for &JsonRecipe {
 }
 
 pub async fn get(db: &SqlitePool, recipe_id: &str) -> Result<(Recipe, Vec<String>), sqlx::Error> {
-    let recipe = sqlx::query_as!(Recipe, "SELECT * FROM recipes WHERE id = $1;", recipe_id)
-        .fetch_one(db)
-        .await?;
+    let recipe = sqlx::query_as!(
+        Recipe,
+        r#"
+        SELECT id, dish_name, ingredients, time_to_prepare, source
+        FROM recipes
+        WHERE id = $1;
+        "#,
+        recipe_id
+    )
+    .fetch_one(db)
+    .await?;
 
-    let tags: Vec<String> = sqlx::query_scalar!("SELECT tag FROM tags WHERE recipe_id = $1;", recipe_id)
-        .fetch_all(db)
-        .await?;
+    let tags: Vec<String> = sqlx::query_scalar!(
+        "SELECT tag FROM recipe_tags WHERE recipe_id = $1;",
+        recipe_id
+    )
+    .fetch_all(db)
+    .await?;
 
     Ok((recipe, tags))
 }
@@ -111,12 +126,14 @@ pub async fn add(db: &SqlitePool, recipe: JsonRecipe) -> Result<(), sqlx::Error>
     let mut jtx = db.begin().await?;
 
     sqlx::query!(
-        r#"INSERT INTO recipes
-        (id, whos_there, answer_who, recipe_source)
-        VALUES ($1, $2, $3, $4);"#,
+        r#"
+        INSERT INTO recipes (id, dish_name, ingredients, time_to_prepare, source)
+        VALUES ($1, $2, $3, $4, $5);
+        "#,
         recipe.id,
-        recipe.whos_there,
-        recipe.answer_who,
+        recipe.dish_name,
+        recipe.ingredients,
+        recipe.time_to_prepare,
         recipe.source,
     )
     .execute(&mut *jtx)
@@ -124,12 +141,12 @@ pub async fn add(db: &SqlitePool, recipe: JsonRecipe) -> Result<(), sqlx::Error>
 
     for tag in recipe.tags {
         sqlx::query!(
-            r#"INSERT INTO tags (recipe_id, tag) VALUES ($1, $2);"#,
+            r#"INSERT INTO recipe_tags (recipe_id, tag) VALUES ($1, $2);"#,
             recipe.id,
             tag,
         )
-            .execute(&mut *jtx)
-            .await?;
+        .execute(&mut *jtx)
+        .await?;
     }
 
     jtx.commit().await?;

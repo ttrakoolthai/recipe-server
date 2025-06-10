@@ -9,17 +9,17 @@
         "type_info": "Text"
       },
       {
-        "name": "whos_there",
+        "name": "title",
         "ordinal": 1,
         "type_info": "Text"
       },
       {
-        "name": "answer_who",
+        "name": "ingredients",
         "ordinal": 2,
         "type_info": "Text"
       },
       {
-        "name": "recipe_source",
+        "name": "source",
         "ordinal": 3,
         "type_info": "Text"
       }
