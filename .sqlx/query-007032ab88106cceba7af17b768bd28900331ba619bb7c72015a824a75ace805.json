@@ -1,20 +1,20 @@
 {
   "db_name": "SQLite",
-  "query": "SELECT id FROM jokes ORDER BY RANDOM() LIMIT 1;",
+  "query": "SELECT tag FROM tags WHERE recipe_id = $1;",
   "describe": {
     "columns": [
       {
-        "name": "id",
+        "name": "tag",
         "ordinal": 0,
         "type_info": "Text"
       }
     ],
     "parameters": {
-      "Right": 0
+      "Right": 1
     },
     "nullable": [
       false
     ]
   },
-  "hash": "c86bc4b9e7236fc1602d2709a6df82b6387d313168f510eb5916e811ba44d9ec"
+  "hash": "007032ab88106cceba7af17b768bd28900331ba619bb7c72015a824a75ace805"
 }
