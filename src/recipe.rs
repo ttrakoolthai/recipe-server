@@ -9,7 +9,7 @@ use crate::KnockKnockError;
 use serde::Deserialize;
 
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
-pub struct JsonJoke {
+pub struct JsonRecipe {
     id: String,
     whos_there: String,
     answer_who: String,
@@ -25,13 +25,13 @@ pub struct Joke {
     pub joke_source: String,
 }
 
-pub fn read_jokes<P: AsRef<Path>>(jokes_path: P) -> Result<Vec<JsonJoke>, KnockKnockError> {
+pub fn read_jokes<P: AsRef<Path>>(jokes_path: P) -> Result<Vec<JsonRecipe>, KnockKnockError> {
     let f = std::fs::File::open(jokes_path.as_ref())?;
     let jokes = serde_json::from_reader(f)?;
     Ok(jokes)
 }
 
-impl JsonJoke {
+impl JsonRecipe {
     pub fn new(joke: Joke, tags: Vec<String>) -> Self {
         let tags = tags.into_iter().collect();
         Self {
@@ -55,7 +55,7 @@ impl JsonJoke {
     }
 }
 
-impl axum::response::IntoResponse for &JsonJoke {
+impl axum::response::IntoResponse for &JsonRecipe {
     fn into_response(self) -> axum::response::Response {
         (http::StatusCode::OK, axum::Json(&self)).into_response()
     }
@@ -107,7 +107,7 @@ pub async fn get_random(db: &SqlitePool) -> Result<String, sqlx::Error> {
         .await
 }
 
-pub async fn add(db: &SqlitePool, joke: JsonJoke) -> Result<(), sqlx::Error> {
+pub async fn add(db: &SqlitePool, joke: JsonRecipe) -> Result<(), sqlx::Error> {
     let mut jtx = db.begin().await?;
 
     sqlx::query!(
@@ -135,4 +135,3 @@ pub async fn add(db: &SqlitePool, joke: JsonJoke) -> Result<(), sqlx::Error> {
     jtx.commit().await?;
     Ok(())
 }
-

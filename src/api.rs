@@ -3,26 +3,26 @@ use crate::*;
 #[derive(OpenApi)]
 #[openapi(
     tags(
-        (name = "kk2", description = "Knock-Knock Joke API")
+        (name = "recipe-server", description = "Recipes API")
     )
 )]
 pub struct ApiDoc;
 
 pub fn router() -> OpenApiRouter<Arc<RwLock<AppState>>> {
     OpenApiRouter::new()
-        .routes(routes!(get_joke))
-        .routes(routes!(get_tagged_joke))
-        .routes(routes!(get_random_joke))
+        .routes(routes!(get_recipe))
+        .routes(routes!(get_tagged_recipe))
+        .routes(routes!(get_random_recipe))
         .routes(routes!(register))
-        .routes(routes!(add_joke))
+        .routes(routes!(add_recipe))
 }
 
-async fn get_joke_by_id(db: &SqlitePool, joke_id: &str) -> Result<response::Response, http::StatusCode> {
-    let joke_result = recipe::get(db, joke_id).await;
-    match joke_result {
-        Ok((joke, tags)) => Ok(JsonJoke::new(joke, tags).into_response()),
+async fn get_recipe_by_id(db: &SqlitePool, recipe_id: &str) -> Result<response::Response, http::StatusCode> {
+    let recipe_result = recipe::get(db, recipe_id).await;
+    match recipe_result {
+        Ok((recipe, tags)) => Ok(JsonRecipe::new(recipe, tags).into_response()),
         Err(e) => {
-            log::warn!("joke fetch failed: {}", e);
+            log::warn!("Recipe fetch failed: {}", e);
             Err(http::StatusCode::NOT_FOUND)
         }
     }
@@ -30,45 +30,45 @@ async fn get_joke_by_id(db: &SqlitePool, joke_id: &str) -> Result<response::Resp
 
 #[utoipa::path(
     get,
-    path = "/joke/{joke_id}",
+    path = "/recipe/{recipe_id}",
     responses(
-        (status = 200, description = "Get a joke by id", body = [JsonJoke]),
-        (status = 404, description = "No matching joke"),
+        (status = 200, description = "Get a recipe by id", body = [JsonRecipe]),
+        (status = 404, description = "No matching recipe"),
     )
 )]
-pub async fn get_joke(
+pub async fn get_recipe(
     State(app_state): State<Arc<RwLock<AppState>>>,
-    Path(joke_id): Path<String>,
+    Path(recipe_id): Path<String>,
 ) -> Result<response::Response, http::StatusCode> {
     let app_reader = app_state.read().await;
     let db = &app_reader.db;
-    get_joke_by_id(db, &joke_id).await
+    get_recipe_by_id(db, &recipe_id).await
 }
 
 #[utoipa::path(
     get,
-    path = "/tagged-joke",
+    path = "/tagged-recipe",
     responses(
-        (status = 200, description = "Get a joke by tags", body = [JsonJoke]),
-        (status = 404, description = "No matching jokes"),
+        (status = 200, description = "Get a recipe by tags", body = [JsonRecipe]),
+        (status = 404, description = "No matching recipes"),
     )
 )]
-pub async fn get_tagged_joke(
+pub async fn get_tagged_recipe(
     State(app_state): State<Arc<RwLock<AppState>>>,
     Json(tags): Json<Vec<String>>,
 ) -> Result<response::Response, http::StatusCode> {
-    log::info!("get tagged joke: {:?}", tags);
+    log::info!("Get tagged recipe: {:?}", tags);
     let app_reader = app_state.read().await;
     let db = &app_reader.db;
-    let joke_result = recipe::get_tagged(db, tags.iter().map(String::as_ref)).await;
-    match joke_result {
-        Ok(Some(joke_id)) => get_joke_by_id(db, &joke_id).await,
+    let recipe_result = recipe::get_tagged(db, tags.iter().map(String::as_ref)).await;
+    match recipe_result {
+        Ok(Some(recipe_id)) => get_recipe_by_id(db, &recipe_id).await,
         Ok(None) => {
-            log::warn!("joke tag fetch failed tagging");
+            log::warn!("Recipe tag fetch failed tagging");
             Err(http::StatusCode::NOT_FOUND)
         }
         Err(e) => {
-            log::warn!("joke tag fetch failed: {}", e);
+            log::warn!("Recipe tag fetch failed: {}", e);
             Err(http::StatusCode::NOT_FOUND)
         }
     }
@@ -76,22 +76,22 @@ pub async fn get_tagged_joke(
 
 #[utoipa::path(
     get,
-    path = "/random-joke",
+    path = "/random-recipe",
     responses(
-        (status = 200, description = "Get a random joke", body = [JsonJoke]),
-        (status = 404, description = "No joke"),
+        (status = 200, description = "Get a random recipe", body = [JsonRecipe]),
+        (status = 404, description = "No recipe"),
     )
 )]
-pub async fn get_random_joke(
+pub async fn get_random_recipe(
     State(app_state): State<Arc<RwLock<AppState>>>,
 ) -> Result<response::Response, http::StatusCode> {
     let app_reader = app_state.read().await;
     let db = &app_reader.db;
-    let joke_result = recipe::get_random(db).await;
-    match joke_result {
-        Ok(joke_id) => get_joke_by_id(db, &joke_id).await,
+    let recipe_result = recipe::get_random(db).await;
+    match recipe_result {
+        Ok(recipe_id) => get_recipe_by_id(db, &recipe_id).await,
         Err(e) => {
-            log::warn!("get random joke failed: {}", e);
+            log::warn!("Get random recipe failed: {}", e);
             Err(http::StatusCode::NOT_FOUND)
         }
     }
@@ -122,24 +122,24 @@ pub async fn register(
 
 #[utoipa::path(
     post,
-    path = "/add-joke",
+    path = "/add-recipe",
     request_body(
-        content = inline(JsonJoke),
-        description = "Joke to add"
+        content = inline(JsonRecipe),
+        description = "Recipe to add"
     ),
     responses(
-        (status = 201, description = "Added joke", body = ()),
+        (status = 201, description = "Added recipe", body = ()),
         (status = 400, description = "Bad request", body = String),
         (status = 401, description = "Auth Error", body = authjwt::AuthError),
     )
 )]
-pub async fn add_joke(
+pub async fn add_recipe(
     _claims: authjwt::Claims,
     State(appstate): State<SharedAppState>,
-    Json(joke): Json<JsonJoke>,
+    Json(recipe): Json<JsonRecipe>,
 ) -> axum::response::Response {
     let appstate = appstate.read().await;
-    match recipe::add(&appstate.db, joke).await {
+    match recipe::add(&appstate.db, recipe).await {
         Err(e) => (StatusCode::BAD_REQUEST, e.to_string()).into_response(),
         Ok(()) => StatusCode::CREATED.into_response(),
     }
