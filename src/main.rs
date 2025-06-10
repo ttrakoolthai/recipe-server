@@ -86,7 +86,7 @@ fn get_db_uri(db_uri: Option<&str>) -> Cow<str> {
     } else if let Ok(db_uri) = std::env::var("DATABASE_URL") {
         db_uri.into()
     } else {
-        "sqlite://db/knock-knock.db".into()
+        "sqlite://db/recipes.db".into()
     }
 }
 
