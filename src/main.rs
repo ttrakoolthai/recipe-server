@@ -90,7 +90,7 @@ fn get_db_uri(db_uri: Option<&str>) -> Cow<str> {
     }
 }
 
-fn extract_db_dir(db_uri: &str) -> Result<&str, KnockKnockError> {
+fn extract_db_dir(db_uri: &str) -> Result<&str, RecipeServerError> {
     if db_uri.starts_with("sqlite://") && db_uri.ends_with(".db") {
         let start = db_uri.find(':').unwrap() + 3;
         let mut path = &db_uri[start..];
@@ -101,7 +101,7 @@ fn extract_db_dir(db_uri: &str) -> Result<&str, KnockKnockError> {
         }
         Ok(path)
     } else {
-        Err(KnockKnockError::InvalidDbUri(db_uri.to_string()))
+        Err(RecipeServerError::InvalidDbUri(db_uri.to_string()))
     }
 }
 
@@ -237,8 +237,8 @@ async fn serve() -> Result<(), Box<dyn std::error::Error>> {
     let app = axum::Router::new()
         .route("/", routing::get(web::get_joke))
         .route_service(
-            "/knock.css",
-            services::ServeFile::new_with_mime("assets/static/knock.css", &mime::TEXT_CSS_UTF_8),
+            "/recipe-server.css",
+            services::ServeFile::new_with_mime("assets/static/recipe-server.css", &mime::TEXT_CSS_UTF_8),
         )
         .route_service(
             "/favicon.ico",

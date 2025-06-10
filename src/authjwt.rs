@@ -122,7 +122,7 @@ pub struct Registration {
 
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 pub struct Claims {
-    #[schema(example = "knock-knock.po8.org")]
+    #[schema(example = "recipe-server.po8.org")]
     iss: String,
     #[schema(example = "John Smith <johnsmith@example.org>")]
     sub: String,
@@ -132,12 +132,12 @@ pub struct Claims {
 
 pub fn make_jwt_token(appstate: &AppState, registration: &Registration) -> Result<AuthBody, AuthError> {
     use jsonwebtoken::{Algorithm, Header, encode};
-    
+
     if registration.password != appstate.reg_key {
         return Err(AuthError::Registration);
     }
 
-    let iss = "knock-knock.po8.org".to_string();
+    let iss = "recipe-server.po8.org".to_string();
     let sub = format!("{} <{}>", registration.full_name, registration.email);
     let exp = (Utc::now() + TimeDelta::days(1)).timestamp();
     let exp = u64::try_from(exp).unwrap();
