@@ -14,7 +14,7 @@ impl IndexTemplate {
     pub fn new(joke: Joke, tags: String) -> Self {
         Self {
             joke,
-            stylesheet: "/knock.css",
+            stylesheet: "/recipe-server.css",
             tags,
         }
     }

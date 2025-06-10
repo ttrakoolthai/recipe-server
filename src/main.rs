@@ -58,14 +58,14 @@ struct AppState {
     db: SqlitePool,
     jwt_keys: authjwt::JwtKeys,
     reg_key: String,
-    current_joke: Joke,
+    current_recipe: Joke,
 }
 
 type SharedAppState = Arc<RwLock<AppState>>;
 
 impl AppState {
     pub fn new(db: SqlitePool, jwt_keys: authjwt::JwtKeys, reg_key: String) -> Self {
-        let current_joke = Joke {
+        let current_recipe= Joke {
             id: "mojo".to_string(),
             whos_there: "Mojo".to_string(),
             answer_who: "Mo' jokes, please.".to_string(),
@@ -75,7 +75,7 @@ impl AppState {
             db,
             jwt_keys,
             reg_key,
-            current_joke,
+            current_recipe,
         }
     }
 }
@@ -235,7 +235,7 @@ async fn serve() -> Result<(), Box<dyn std::error::Error>> {
     let rapidoc_ui = RapiDoc::new("/api-docs/openapi.json").path("/rapidoc");
 
     let app = axum::Router::new()
-        .route("/", routing::get(web::get_joke))
+        .route("/", routing::get(web::get_recipe))
         .route_service(
             "/recipe-server.css",
             services::ServeFile::new_with_mime("assets/static/recipe-server.css", &mime::TEXT_CSS_UTF_8),
