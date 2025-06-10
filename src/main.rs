@@ -1,12 +1,12 @@
 mod error;
-mod joke;
+mod recipe;
 mod templates;
 mod web;
 mod api;
 mod authjwt;
 
 use error::*;
-use joke::*;
+use recipe::*;
 use templates::*;
 
 extern crate log;

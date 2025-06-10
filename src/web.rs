@@ -15,7 +15,7 @@ pub async fn get_joke(
 
     // Specified.
     if let GetJokeParams { id: Some(id), .. } = params {
-        let joke_result = joke::get(&db, &id).await;
+        let joke_result = recipe::get(&db, &id).await;
         let result = match joke_result {
             Ok((joke, tags)) => {
                 let tag_string = tags.join(", ");
@@ -43,7 +43,7 @@ pub async fn get_joke(
             }
         }
 
-        let joke_result = joke::get_tagged(&db, tags_string.split(',')).await;
+        let joke_result = recipe::get_tagged(&db, tags_string.split(',')).await;
         match joke_result {
             Ok(Some(id)) => {
                 let uri = format!("/?id={}", id);
@@ -59,7 +59,7 @@ pub async fn get_joke(
         }
     }
 
-    let joke_result = joke::get_random(&db).await;
+    let joke_result = recipe::get_random(&db).await;
     match joke_result {
         Ok(id) => {
             let uri = format!("/?id={}", id);
