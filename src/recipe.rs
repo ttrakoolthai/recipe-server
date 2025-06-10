@@ -101,9 +101,11 @@ pub async fn get_tagged<'a, I>(db: &SqlitePool, tags: I) -> Result<Option<String
             .execute(&mut *jtx)
             .await?;
     }
-    let recipe_ids = sqlx::query("SELECT DISTINCT recipe_id FROM tags JOIN qtags ON tags.tag = qtags.tag ORDER BY RANDOM() LIMIT 1;")
-        .fetch_all(&mut *jtx)
-        .await?;
+    let recipe_ids = sqlx::query(
+        "SELECT DISTINCT recipe_id FROM recipe_tags JOIN qtags ON recipe_tags.tag = qtags.tag ORDER BY RANDOM() LIMIT 1;"
+    )
+    .fetch_all(&mut *jtx)
+    .await?;
     let nrecipe_ids = recipe_ids.len();
     let result = if nrecipe_ids == 1 {
         Some(recipe_ids[0].get(0))
