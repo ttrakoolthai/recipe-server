@@ -31,18 +31,18 @@ pub async fn make_jwt_keys() -> Result<JwtKeys, Box<dyn std::error::Error>> {
 
 #[derive(Debug, thiserror::Error, Serialize)]
 pub enum AuthError {
-    #[error("invalid token")]
+    #[error("Invalid token")]
     InvalidToken,
-    #[error("internal error: token creation")]
+    #[error("Internal Error: Token creation")]
     TokenCreation,
-    #[error("registration error")]
+    #[error("Registration error")]
     Registration,
 }
 
 impl utoipa::PartialSchema for AuthError {
     fn schema() -> utoipa::openapi::RefOr<utoipa::openapi::Schema> {
         serde_json::json!({
-            "status":"401","error":"wrong credentials"
+            "Status":"401","Error":"Wrong credentials"
         }).into()
     }
 }
@@ -103,8 +103,8 @@ impl IntoResponse for AuthError {
             AuthError::InvalidToken => (StatusCode::UNAUTHORIZED, "Invalid token"),
         };
         let body = Json(serde_json::json!({
-            "status": status.as_u16(),
-            "error": error_message,
+            "Status": status.as_u16(),
+            "Error": error_message,
         }));
         (status, body).into_response()
     }

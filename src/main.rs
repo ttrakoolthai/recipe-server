@@ -1,14 +1,11 @@
+mod api;
+mod authjwt;
 mod error;
 mod recipe;
 mod templates;
 mod web;
-mod api;
-mod authjwt;
 
-use error::*;
-use recipe::*;
-use templates::*;
-
+extern crate fastrand;
 extern crate log;
 extern crate mime;
 
@@ -26,10 +23,14 @@ use axum_extra::{
 };
 use chrono::{prelude::*, TimeDelta};
 use clap::Parser;
-extern crate fastrand;
+use error::*;
 use jsonwebtoken::{EncodingKey, DecodingKey};
+use recipe::*;
 use serde::{Serialize, Deserialize};
 use sqlx::{Row, SqlitePool, migrate::MigrateDatabase, sqlite};
+use std::borrow::Cow;
+use std::sync::Arc;
+use templates::*;
 use tokio::{net, signal, sync::RwLock, time::Duration};
 use tower_http::{services, trace};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
@@ -39,17 +40,17 @@ use utoipa_rapidoc::RapiDoc;
 use utoipa_redoc::{Redoc, Servable};
 use utoipa_swagger_ui::SwaggerUi;
 
-use std::borrow::Cow;
-use std::sync::Arc;
-
 #[derive(Parser)]
 struct Args {
-    #[arg(long, name = "init-from")]
+    #[arg(long, name = "Init-from")]
     init_from: Option<std::path::PathBuf>,
+
     #[arg(short, long, name = "db-uri")]
     db_uri: Option<String>,
+
     #[arg(short, long, default_value = "127.0.0.1")]
     ip: String,
+
     #[arg(short, long, default_value = "3000")]
     port: u16,
 }
@@ -145,7 +146,7 @@ async fn serve() -> Result<(), Box<dyn std::error::Error>> {
     let tsf = tracing_subscriber::fmt::layer()
         .with_writer(std::io::stderr);
     let tse = tracing_subscriber::EnvFilter::try_from_default_env().
-        unwrap_or_else(|_| "kk2=debug".into());
+        unwrap_or_else(|_| "recipe_server=debug".into());
     tracing_subscriber::registry().with(tsf).with(tse).init();
 
     log::info!("Starting...");
@@ -166,7 +167,7 @@ async fn serve() -> Result<(), Box<dyn std::error::Error>> {
         'next_recipe: for jj in recipes {
             let mut jtx = db.begin().await?;
             let (j, ts) = jj.to_recipe();
-            let recipe_insert = sqlx::query!(
+        let recipe_insert = sqlx::query!(
                 "INSERT INTO recipes (id, dish_name, ingredients, time_to_prepare, source)
                  VALUES ($1, $2, $3, $4, $5);",
                 j.id,
@@ -191,7 +192,7 @@ async fn serve() -> Result<(), Box<dyn std::error::Error>> {
                 .execute(&mut *jtx)
                 .await;
                 if let Err(e) = tag_insert {
-                    eprintln!("Error: tag insert: {} {}: {}", j.id, t, e);
+                    eprintln!("Error--Tag insert: {} {}: {}", j.id, t, e);
                     jtx.rollback().await?;
                     continue 'next_recipe;
                 };
@@ -209,7 +210,7 @@ async fn serve() -> Result<(), Box<dyn std::error::Error>> {
     let reg_key = authjwt::read_secret("REG_PASSWORD", "secrets/reg_password.txt")
         .await
         .unwrap_or_else(|_| {
-            tracing::error!("reg password");
+            tracing::error!("Reg password");
             std::process::exit(1);
         });
 
@@ -261,7 +262,7 @@ async fn serve() -> Result<(), Box<dyn std::error::Error>> {
 
     let endpoint = format!("{}:{}", args.ip, args.port);
     let listener = net::TcpListener::bind(&endpoint).await?;
-    log::info!("started: listening on {}", endpoint);
+    log::info!("Started: Listening on {}", endpoint);
     axum::serve(listener, app)
         .with_graceful_shutdown(shutdown_signal())
         .await?;
@@ -272,7 +273,7 @@ async fn serve() -> Result<(), Box<dyn std::error::Error>> {
 #[tokio::main]
 async fn main() {
     if let Err(err) = serve().await {
-        eprintln!("kk2: error: {}", err);
+        eprintln!("recipe_server: error: {}", err);
         std::process::exit(1);
     }
 }

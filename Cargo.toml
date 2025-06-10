@@ -1,7 +1,7 @@
 [package]
-name = "kk2"
-version = "0.1.0"
+name = "recipe_server"
 edition = "2024"
+version = "0.1.0"
 
 [dependencies]
 askama = "0.14.0"
@@ -24,8 +24,16 @@ features = ["derive"]
 version = "1.0.219"
 features = ["derive"]
 
+[dependencies.sqlx]
+version = "0.8.6"
+features = ["runtime-tokio", "sqlite", "derive", "macros", "migrate", "chrono", "json"]
+
 [dependencies.tokio]
 version = "1.45.0"
+features = ["full"]
+
+[dependencies.tokio-stream]
+version = "0.1.17"
 features = ["full"]
 
 [dependencies.tower-http]
@@ -35,14 +43,6 @@ features = ["fs", "trace", "cors"]
 [dependencies.tracing-subscriber]
 version = "0.3.19"
 features = ["env-filter"]
-
-[dependencies.sqlx]
-version = "0.8.6"
-features = ["runtime-tokio", "sqlite", "derive", "macros", "migrate", "chrono", "json"]
-
-[dependencies.tokio-stream]
-version = "0.1.17"
-features = ["full"]
 
 [dependencies.utoipa]
 #version = "5.3.1"

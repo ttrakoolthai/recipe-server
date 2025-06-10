@@ -3,7 +3,7 @@ use crate::*;
 #[derive(OpenApi)]
 #[openapi(
     tags(
-        (name = "recipe-server", description = "Recipes API")
+        (name = "recipe-server", description = "Recipe-Server API")
     )
 )]
 pub struct ApiDoc;
