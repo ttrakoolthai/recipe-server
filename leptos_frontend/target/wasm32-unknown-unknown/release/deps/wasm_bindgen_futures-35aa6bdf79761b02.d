@@ -1,9 +1,0 @@
-/Users/trakoolthai/Desktop/recipe-server/leptos_frontend/target/wasm32-unknown-unknown/release/deps/libwasm_bindgen_futures-35aa6bdf79761b02.rmeta: /Users/trakoolthai/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasm-bindgen-futures-0.4.50/src/lib.rs /Users/trakoolthai/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasm-bindgen-futures-0.4.50/src/queue.rs /Users/trakoolthai/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasm-bindgen-futures-0.4.50/src/task/singlethread.rs
-
-/Users/trakoolthai/Desktop/recipe-server/leptos_frontend/target/wasm32-unknown-unknown/release/deps/libwasm_bindgen_futures-35aa6bdf79761b02.rlib: /Users/trakoolthai/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasm-bindgen-futures-0.4.50/src/lib.rs /Users/trakoolthai/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasm-bindgen-futures-0.4.50/src/queue.rs /Users/trakoolthai/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasm-bindgen-futures-0.4.50/src/task/singlethread.rs
-
-/Users/trakoolthai/Desktop/recipe-server/leptos_frontend/target/wasm32-unknown-unknown/release/deps/wasm_bindgen_futures-35aa6bdf79761b02.d: /Users/trakoolthai/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasm-bindgen-futures-0.4.50/src/lib.rs /Users/trakoolthai/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasm-bindgen-futures-0.4.50/src/queue.rs /Users/trakoolthai/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasm-bindgen-futures-0.4.50/src/task/singlethread.rs
-
-/Users/trakoolthai/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasm-bindgen-futures-0.4.50/src/lib.rs:
-/Users/trakoolthai/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasm-bindgen-futures-0.4.50/src/queue.rs:
-/Users/trakoolthai/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasm-bindgen-futures-0.4.50/src/task/singlethread.rs:

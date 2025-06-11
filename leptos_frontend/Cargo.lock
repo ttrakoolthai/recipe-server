@@ -718,7 +718,6 @@ dependencies = [
  "reqwasm",
  "serde",
  "wasm-bindgen",
- "web-sys",
 ]
 
 [[package]]
