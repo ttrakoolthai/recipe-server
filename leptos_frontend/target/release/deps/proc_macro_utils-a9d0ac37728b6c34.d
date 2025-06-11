@@ -1,0 +1,10 @@
+/Users/trakoolthai/Desktop/recipe-server/leptos_frontend/target/release/deps/libproc_macro_utils-a9d0ac37728b6c34.rmeta: /Users/trakoolthai/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro-utils-0.8.0/src/lib.rs /Users/trakoolthai/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro-utils-0.8.0/src/parser.rs /Users/trakoolthai/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro-utils-0.8.0/src/assert.rs /Users/trakoolthai/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro-utils-0.8.0/src/__private.rs
+
+/Users/trakoolthai/Desktop/recipe-server/leptos_frontend/target/release/deps/libproc_macro_utils-a9d0ac37728b6c34.rlib: /Users/trakoolthai/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro-utils-0.8.0/src/lib.rs /Users/trakoolthai/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro-utils-0.8.0/src/parser.rs /Users/trakoolthai/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro-utils-0.8.0/src/assert.rs /Users/trakoolthai/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro-utils-0.8.0/src/__private.rs
+
+/Users/trakoolthai/Desktop/recipe-server/leptos_frontend/target/release/deps/proc_macro_utils-a9d0ac37728b6c34.d: /Users/trakoolthai/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro-utils-0.8.0/src/lib.rs /Users/trakoolthai/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro-utils-0.8.0/src/parser.rs /Users/trakoolthai/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro-utils-0.8.0/src/assert.rs /Users/trakoolthai/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro-utils-0.8.0/src/__private.rs
+
+/Users/trakoolthai/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro-utils-0.8.0/src/lib.rs:
+/Users/trakoolthai/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro-utils-0.8.0/src/parser.rs:
+/Users/trakoolthai/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro-utils-0.8.0/src/assert.rs:
+/Users/trakoolthai/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro-utils-0.8.0/src/__private.rs:

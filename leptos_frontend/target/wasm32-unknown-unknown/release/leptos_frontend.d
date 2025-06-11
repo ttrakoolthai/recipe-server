@@ -1,0 +1,1 @@
+/Users/trakoolthai/Desktop/recipe-server/leptos_frontend/target/wasm32-unknown-unknown/release/leptos_frontend.wasm: /Users/trakoolthai/Desktop/recipe-server/leptos_frontend/src/lib.rs /Users/trakoolthai/Desktop/recipe-server/leptos_frontend/src/main.rs

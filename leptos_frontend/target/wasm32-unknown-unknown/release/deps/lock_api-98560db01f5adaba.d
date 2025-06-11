@@ -1,0 +1,10 @@
+/Users/trakoolthai/Desktop/recipe-server/leptos_frontend/target/wasm32-unknown-unknown/release/deps/liblock_api-98560db01f5adaba.rmeta: /Users/trakoolthai/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/lock_api-0.4.13/src/lib.rs /Users/trakoolthai/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/lock_api-0.4.13/src/mutex.rs /Users/trakoolthai/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/lock_api-0.4.13/src/remutex.rs /Users/trakoolthai/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/lock_api-0.4.13/src/rwlock.rs
+
+/Users/trakoolthai/Desktop/recipe-server/leptos_frontend/target/wasm32-unknown-unknown/release/deps/liblock_api-98560db01f5adaba.rlib: /Users/trakoolthai/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/lock_api-0.4.13/src/lib.rs /Users/trakoolthai/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/lock_api-0.4.13/src/mutex.rs /Users/trakoolthai/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/lock_api-0.4.13/src/remutex.rs /Users/trakoolthai/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/lock_api-0.4.13/src/rwlock.rs
+
+/Users/trakoolthai/Desktop/recipe-server/leptos_frontend/target/wasm32-unknown-unknown/release/deps/lock_api-98560db01f5adaba.d: /Users/trakoolthai/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/lock_api-0.4.13/src/lib.rs /Users/trakoolthai/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/lock_api-0.4.13/src/mutex.rs /Users/trakoolthai/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/lock_api-0.4.13/src/remutex.rs /Users/trakoolthai/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/lock_api-0.4.13/src/rwlock.rs
+
+/Users/trakoolthai/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/lock_api-0.4.13/src/lib.rs:
+/Users/trakoolthai/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/lock_api-0.4.13/src/mutex.rs:
+/Users/trakoolthai/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/lock_api-0.4.13/src/remutex.rs:
+/Users/trakoolthai/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/lock_api-0.4.13/src/rwlock.rs:

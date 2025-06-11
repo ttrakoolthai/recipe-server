@@ -1,3 +1,5 @@
+use tower_http::services::{ServeDir, ServeFile};
+
 mod api;
 mod authjwt;
 mod error;
@@ -222,6 +224,13 @@ async fn serve() -> Result<(), Box<dyn std::error::Error>> {
         .make_span_with(trace::DefaultMakeSpan::new().level(tracing::Level::INFO))
         .on_response(trace::DefaultOnResponse::new().level(tracing::Level::INFO));
 
+    use tower_http::cors::{CorsLayer, Any};
+
+    // let cors = CorsLayer::new()
+    //     .allow_origin(Any)
+    //     .allow_methods(Any)
+    //     .allow_headers(Any);
+
     let cors = tower_http::cors::CorsLayer::new()
         .allow_methods([http::Method::GET, http::Method::POST])
         .allow_origin(tower_http::cors::Any);
@@ -242,11 +251,18 @@ async fn serve() -> Result<(), Box<dyn std::error::Error>> {
     let rapidoc_ui = RapiDoc::new("/api-docs/openapi.json").path("/rapidoc");
 
     let app = axum::Router::new()
-        .route("/", routing::get(web::get_recipe))
-        .route_service(
-            "/recipe-server.css",
-            services::ServeFile::new_with_mime("assets/static/recipe-server.css", &mime::TEXT_CSS_UTF_8),
-        )
+    .route("/", axum::routing::get(web::get_recipe))
+    .nest_service("/pkg", ServeDir::new("leptos_frontend/dist/pkg")) // WASM + JS
+    .route("/ui", axum::routing::get(|| async { web::serve_leptos_ui().await }))
+    // .route("/", get(web::serve_leptos_ui)) // Askama serves Leptos loader
+    // .nest_service("/ui", ServeDir::new("leptos_frontend/dist"))
+    .route_service("/index.html", ServeFile::new("leptos_frontend/dist/index.html"))
+    .fallback(handler_404)
+        // .route("/", routing::get(web::get_recipe))
+        // .route_service(
+            // "/recipe-server.css",
+            // services::ServeFile::new_with_mime("assets/static/recipe-server.css", &mime::TEXT_CSS_UTF_8),
+        // )
         .route_service(
             "/favicon.ico",
             services::ServeFile::new_with_mime("assets/static/favicon.ico", &mime_favicon),

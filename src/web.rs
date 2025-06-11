@@ -1,4 +1,5 @@
 use crate::*;
+use axum::response::Html;
 
 #[derive(Deserialize)]
 pub struct GetRecipeParams {
@@ -70,7 +71,26 @@ pub async fn get_recipe(
             let tag_string = "Empty".to_string();
             let recipe = app_writer.current_recipe.clone();
             let recipe= IndexTemplate::new(recipe, tag_string);
-            Ok(response::Html(recipe.to_string()).into_response())
+            // Ok(response::Html(recipe.to_string()).into_response())
+            Ok(Html(recipe.to_string()).into_response())
         }
     }
+}
+
+use crate::templates::IndexTemplate;
+use crate::recipe::Recipe;
+
+pub async fn serve_leptos_ui() -> Html<String> {
+    let recipe = Recipe {
+        id: "placeholder-id".to_string(),
+        dish_name: "Sample Dish".to_string(),
+        ingredients: "ingredient1, ingredient2".to_string(),
+        time_to_prepare: "30 minutes".to_string(),
+        source: "https://example.com".to_string(),
+    };
+
+    let tags = String::from("sample,example");
+
+    let template = IndexTemplate::new(recipe, tags);
+    Html(template.to_string())
 }

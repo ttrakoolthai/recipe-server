@@ -1,0 +1,31 @@
+.teller {
+    font-weight: bold;
+}
+
+.tellee {
+    font-style: italic;
+}
+
+h1 {
+    font-weight: bold;
+    font-size: 150%;
+}
+
+.joke {
+    border: 1px solid black;
+}
+
+.source {
+    font-style: italic;
+    font-size: 75%;
+}
+
+.tags {
+    font-style: italic;
+    font-size: 75%;
+    margin-left: 3em;
+}
+
+.error {
+    color: #881111;
+}

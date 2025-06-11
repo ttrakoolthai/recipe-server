@@ -1,0 +1,24 @@
+[package]
+name = "leptos_frontend"
+version = "0.1.0"
+edition = "2021"
+
+# Only include `bin` OR `lib`, not both — or make the names unique
+[[bin]]
+name = "leptos_frontend"
+path = "src/main.rs"
+
+[dependencies]
+console_error_panic_hook = "0.1"
+wasm-bindgen = "0.2"
+reqwasm = "0.5"
+serde = { version = "1.0", features = ["derive"] }
+log = "0.4"
+leptos = { version = "0.6", features = ["csr"] }
+
+[dependencies.web-sys]
+version = "0.3"
+features = ["Window", "Document", "Element"]
+
+# [lib]
+# crate-type = ["cdylib", "rlib"]
