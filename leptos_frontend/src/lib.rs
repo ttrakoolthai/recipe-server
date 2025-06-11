@@ -40,9 +40,10 @@ pub fn RecipeLoader() -> impl IntoView {
         error.set(None);
 
         spawn_local(async move {
-            let response = reqwasm::http::Request::get("http://localhost:3000/api/v1/random-recipe")
-                .send()
-                .await;
+            let response =
+                reqwasm::http::Request::get("http://localhost:3000/api/v1/random-recipe")
+                    .send()
+                    .await;
 
             match response {
                 Ok(resp) => {

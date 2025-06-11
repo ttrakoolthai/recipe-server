@@ -12,40 +12,20 @@ fastrand = "2.3.0"
 jsonwebtoken = "9.3.1"
 log = "0.4.27"
 mime = "0.3.17"
+serde = { version = "1.0.219", features = ["derive"] }
 serde_json = "1.0.140"
+sqlx = { version = "0.8.6", features = ["runtime-tokio", "sqlite", "derive", "macros", "migrate", "chrono", "json"] }
 thiserror = "2.0.12"
+tokio = { version = "1.45.0", features = ["full"] }
+tower-http = { version = "0.6.4", features = ["fs", "trace", "cors"] }
 tracing = "0.1.41"
+tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
 
 [dependencies.clap]
 version = "4.5.38"
 features = ["derive"]
 
-[dependencies.serde]
-version = "1.0.219"
-features = ["derive"]
-
-[dependencies.sqlx]
-version = "0.8.6"
-features = ["runtime-tokio", "sqlite", "derive", "macros", "migrate", "chrono", "json"]
-
-[dependencies.tokio]
-version = "1.45.0"
-features = ["full"]
-
-[dependencies.tokio-stream]
-version = "0.1.17"
-features = ["full"]
-
-[dependencies.tower-http]
-version = "0.6.4"
-features = ["fs", "trace", "cors"]
-
-[dependencies.tracing-subscriber]
-version = "0.3.19"
-features = ["env-filter"]
-
 [dependencies.utoipa]
-#version = "5.3.1"
 git = "https://github.com/juhaku/utoipa.git"
 rev = "cecda0531bf7d90800af66b186055932ee730526"
 features = ["axum_extras"]
@@ -55,13 +35,11 @@ git = "https://github.com/juhaku/utoipa.git"
 rev = "cecda0531bf7d90800af66b186055932ee730526"
 
 [dependencies.utoipa-rapidoc]
-#version = "6.0.0"
 git = "https://github.com/juhaku/utoipa.git"
 rev = "cecda0531bf7d90800af66b186055932ee730526"
 features = ["axum"]
 
 [dependencies.utoipa-redoc]
-#version = "6.0.0"
 git = "https://github.com/juhaku/utoipa.git"
 rev = "cecda0531bf7d90800af66b186055932ee730526"
 features = ["axum"]

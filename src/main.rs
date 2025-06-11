@@ -12,27 +12,24 @@ extern crate log;
 extern crate mime;
 
 use axum::{
-    self,
-    RequestPartsExt,
-    extract::{Path, Query, State, Json},
+    self, RequestPartsExt,
+    extract::{Json, Query, State},
     http::{self, StatusCode},
     response::{self, IntoResponse},
-    routing,
 };
 use axum_extra::{
-    headers::{authorization::Bearer, Authorization},
     TypedHeader,
+    headers::{Authorization, authorization::Bearer},
 };
-use chrono::{prelude::*, TimeDelta};
+use chrono::{TimeDelta, prelude::*};
 use clap::Parser;
 use error::*;
-use jsonwebtoken::{EncodingKey, DecodingKey};
+use jsonwebtoken::{DecodingKey, EncodingKey};
 use recipe::*;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use sqlx::{Row, SqlitePool, migrate::MigrateDatabase, sqlite};
 use std::borrow::Cow;
 use std::sync::Arc;
-use templates::*;
 use tokio::{net, signal, sync::RwLock, time::Duration};
 use tower_http::{services, trace};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
@@ -42,21 +39,27 @@ use utoipa_rapidoc::RapiDoc;
 use utoipa_redoc::{Redoc, Servable};
 use utoipa_swagger_ui::SwaggerUi;
 
+/// Command-line arguments for configuring the server.
 #[derive(Parser)]
 struct Args {
+    /// Optional path to JSON file for initializing database.
     #[arg(long, name = "Init-from")]
     init_from: Option<std::path::PathBuf>,
 
+    /// Optional SQLite database URI.
     #[arg(short, long, name = "db-uri")]
     db_uri: Option<String>,
 
+    /// IP address to bind the server to.
     #[arg(short, long, default_value = "127.0.0.1")]
     ip: String,
 
+    /// Port number to bind the server to.
     #[arg(short, long, default_value = "3000")]
     port: u16,
 }
 
+/// Shared application state structure.
 struct AppState {
     db: SqlitePool,
     jwt_keys: authjwt::JwtKeys,
@@ -67,6 +70,7 @@ struct AppState {
 type SharedAppState = Arc<RwLock<AppState>>;
 
 impl AppState {
+    /// Create a new instance of `AppState`.
     pub fn new(db: SqlitePool, jwt_keys: authjwt::JwtKeys, reg_key: String) -> Self {
         let current_recipe = Recipe {
             id: "placeholder-id".to_string(),
@@ -84,6 +88,7 @@ impl AppState {
     }
 }
 
+/// Determine the SQLite database URI to use.
 fn get_db_uri(db_uri: Option<&str>) -> Cow<str> {
     if let Some(db_uri) = db_uri {
         db_uri.into()
@@ -94,6 +99,7 @@ fn get_db_uri(db_uri: Option<&str>) -> Cow<str> {
     }
 }
 
+/// Extract directory path from SQLite URI.
 fn extract_db_dir(db_uri: &str) -> Result<&str, RecipeServerError> {
     if db_uri.starts_with("sqlite://") && db_uri.ends_with(".db") {
         let start = db_uri.find(':').unwrap() + 3;
@@ -109,7 +115,7 @@ fn extract_db_dir(db_uri: &str) -> Result<&str, RecipeServerError> {
     }
 }
 
-// Thanks to Gemini for this code.
+/// Handle shutdown signal (SIGINT, SIGTERM) and perform graceful cleanup.
 async fn shutdown_signal() {
     let ctrl_c = async {
         signal::ctrl_c()
@@ -138,17 +144,15 @@ async fn shutdown_signal() {
     }
 
     tracing::info!("Initiating graceful shutdown...");
-
-    // Example: Give some time for in-flight requests to complete
     tokio::time::sleep(Duration::from_secs(2)).await;
     tracing::info!("Cleanup complete.");
 }
 
+/// Launch the web service.
 async fn serve() -> Result<(), Box<dyn std::error::Error>> {
-    let tsf = tracing_subscriber::fmt::layer()
-        .with_writer(std::io::stderr);
-    let tse = tracing_subscriber::EnvFilter::try_from_default_env().
-        unwrap_or_else(|_| "recipe_server=debug".into());
+    let tsf = tracing_subscriber::fmt::layer().with_writer(std::io::stderr);
+    let tse = tracing_subscriber::EnvFilter::try_from_default_env()
+        .unwrap_or_else(|_| "recipe_server=debug".into());
     tracing_subscriber::registry().with(tsf).with(tse).init();
 
     log::info!("Starting...");
@@ -169,7 +173,7 @@ async fn serve() -> Result<(), Box<dyn std::error::Error>> {
         'next_recipe: for jj in recipes {
             let mut jtx = db.begin().await?;
             let (j, ts) = jj.to_recipe();
-        let recipe_insert = sqlx::query!(
+            let recipe_insert = sqlx::query!(
                 "INSERT INTO recipes (id, dish_name, ingredients, time_to_prepare, source)
                  VALUES ($1, $2, $3, $4, $5);",
                 j.id,
@@ -219,17 +223,9 @@ async fn serve() -> Result<(), Box<dyn std::error::Error>> {
     let app_state = AppState::new(db, jwt_keys, reg_key);
     let state = Arc::new(RwLock::new(app_state));
 
-    // https://carlosmv.hashnode.dev/adding-logging-and-tracing-to-an-axum-app-rust
     let trace_layer = trace::TraceLayer::new_for_http()
         .make_span_with(trace::DefaultMakeSpan::new().level(tracing::Level::INFO))
         .on_response(trace::DefaultOnResponse::new().level(tracing::Level::INFO));
-
-    use tower_http::cors::{CorsLayer, Any};
-
-    // let cors = CorsLayer::new()
-    //     .allow_origin(Any)
-    //     .allow_methods(Any)
-    //     .allow_headers(Any);
 
     let cors = tower_http::cors::CorsLayer::new()
         .allow_methods([http::Method::GET, http::Method::POST])
@@ -245,24 +241,22 @@ async fn serve() -> Result<(), Box<dyn std::error::Error>> {
         .nest("/api/v1", api::router())
         .split_for_parts();
 
-    let swagger_ui = SwaggerUi::new("/swagger-ui")
-        .url("/api-docs/openapi.json", api.clone());
+    let swagger_ui = SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", api.clone());
     let redoc_ui = Redoc::with_url("/redoc", api);
     let rapidoc_ui = RapiDoc::new("/api-docs/openapi.json").path("/rapidoc");
 
     let app = axum::Router::new()
-    .route("/", axum::routing::get(web::get_recipe))
-    .nest_service("/pkg", ServeDir::new("leptos_frontend/dist/pkg")) // WASM + JS
-    .route("/ui", axum::routing::get(|| async { web::serve_leptos_ui().await }))
-    // .route("/", get(web::serve_leptos_ui)) // Askama serves Leptos loader
-    // .nest_service("/ui", ServeDir::new("leptos_frontend/dist"))
-    .route_service("/index.html", ServeFile::new("leptos_frontend/dist/index.html"))
-    .fallback(handler_404)
-        // .route("/", routing::get(web::get_recipe))
-        // .route_service(
-            // "/recipe-server.css",
-            // services::ServeFile::new_with_mime("assets/static/recipe-server.css", &mime::TEXT_CSS_UTF_8),
-        // )
+        .route("/", axum::routing::get(web::get_recipe))
+        .nest_service("/pkg", ServeDir::new("leptos_frontend/dist/pkg"))
+        .route(
+            "/ui",
+            axum::routing::get(|| async { web::serve_leptos_ui().await }),
+        )
+        .route_service(
+            "/index.html",
+            ServeFile::new("leptos_frontend/dist/index.html"),
+        )
+        .fallback(handler_404)
         .route_service(
             "/favicon.ico",
             services::ServeFile::new_with_mime("assets/static/favicon.ico", &mime_favicon),
@@ -285,7 +279,7 @@ async fn serve() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-
+/// Main entry point that launches the server.
 #[tokio::main]
 async fn main() {
     if let Err(err) = serve().await {

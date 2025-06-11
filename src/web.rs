@@ -1,12 +1,27 @@
 use crate::*;
 use axum::response::Html;
 
+/// Query parameters for retrieving a recipe.
+///
+/// - `id`: Optional ID of the recipe to load directly.
+/// - `tags`: Optional comma-separated list of tags used to filter recipes.
 #[derive(Deserialize)]
 pub struct GetRecipeParams {
-    id: Option<String>,
-    tags: Option<String>,
+    pub id: Option<String>,
+    pub tags: Option<String>,
 }
 
+/// Handles the `GET /` route and renders an HTML recipe page.
+///
+/// This handler checks for query parameters:
+/// - If `id` is provided, it fetches the specific recipe and renders it.
+/// - If `tags` are provided, it tries to find a matching recipe and redirects to it.
+/// - If neither is provided, a random recipe is selected.
+///
+/// This route uses an Askama template to render the HTML response.
+///
+/// # Errors
+/// Returns a `404 Not Found` if the recipe with the given ID does not exist.
 pub async fn get_recipe(
     State(app_state): State<Arc<RwLock<AppState>>>,
     Query(params): Query<GetRecipeParams>,
@@ -14,13 +29,12 @@ pub async fn get_recipe(
     let mut app_writer = app_state.write().await;
     let db = app_writer.db.clone();
 
-    // Specified.
+    // Fetch recipe by ID if specified
     if let GetRecipeParams { id: Some(id), .. } = params {
         let recipe_result = recipe::get(&db, &id).await;
         let result = match recipe_result {
             Ok((recipe, tags)) => {
                 let tag_string = tags.join(", ");
-
                 app_writer.current_recipe = recipe.clone();
                 let recipe = IndexTemplate::new(recipe.clone(), tag_string);
                 Ok(response::Html(recipe.to_string()).into_response())
@@ -33,7 +47,11 @@ pub async fn get_recipe(
         return result;
     }
 
-    if let GetRecipeParams { tags: Some(tags), .. } = params {
+    // Fetch recipe by tags if specified
+    if let GetRecipeParams {
+        tags: Some(tags), ..
+    } = params
+    {
         log::info!("Recipe tags: {}", tags);
 
         let mut tags_string = String::new();
@@ -60,6 +78,7 @@ pub async fn get_recipe(
         }
     }
 
+    // Otherwise, fallback to a random recipe
     let recipe_result = recipe::get_random(&db).await;
     match recipe_result {
         Ok(id) => {
@@ -70,16 +89,22 @@ pub async fn get_recipe(
             log::error!("Random recipe selection failed: {}", e);
             let tag_string = "Empty".to_string();
             let recipe = app_writer.current_recipe.clone();
-            let recipe= IndexTemplate::new(recipe, tag_string);
-            // Ok(response::Html(recipe.to_string()).into_response())
+            let recipe = IndexTemplate::new(recipe, tag_string);
             Ok(Html(recipe.to_string()).into_response())
         }
     }
 }
 
-use crate::templates::IndexTemplate;
 use crate::recipe::Recipe;
+use crate::templates::IndexTemplate;
 
+/// Serves a static HTML page with a placeholder recipe.
+/// This is used to bootstrap the Leptos frontend UI.
+///
+/// The recipe shown is hardcoded and not retrieved from the database.
+///
+/// # Returns
+/// An HTML page rendered with Askama.
 pub async fn serve_leptos_ui() -> Html<String> {
     let recipe = Recipe {
         id: "placeholder-id".to_string(),

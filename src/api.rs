@@ -1,5 +1,16 @@
 use crate::*;
 
+use axum::{
+    Json,
+    extract::{Path, State},
+    http,
+    response::{self, IntoResponse},
+};
+use std::sync::Arc;
+use tokio::sync::RwLock;
+use utoipa::OpenApi;
+
+/// OpenAPI documentation definition for the Recipe Server API.
 #[derive(OpenApi)]
 #[openapi(
     tags(
@@ -8,6 +19,7 @@ use crate::*;
 )]
 pub struct ApiDoc;
 
+/// Constructs the API router with all documented endpoints.
 pub fn router() -> OpenApiRouter<Arc<RwLock<AppState>>> {
     OpenApiRouter::new()
         .routes(routes!(get_recipe))
@@ -17,7 +29,11 @@ pub fn router() -> OpenApiRouter<Arc<RwLock<AppState>>> {
         .routes(routes!(add_recipe))
 }
 
-async fn get_recipe_by_id(db: &SqlitePool, recipe_id: &str) -> Result<response::Response, http::StatusCode> {
+/// Fetch a recipe by its ID from the database.
+async fn get_recipe_by_id(
+    db: &SqlitePool,
+    recipe_id: &str,
+) -> Result<response::Response, http::StatusCode> {
     let recipe_result = recipe::get(db, recipe_id).await;
     match recipe_result {
         Ok((recipe, tags)) => Ok(JsonRecipe::new(recipe, tags).into_response()),
@@ -28,6 +44,7 @@ async fn get_recipe_by_id(db: &SqlitePool, recipe_id: &str) -> Result<response::
     }
 }
 
+/// Utoipa-documented handler for fetching a recipe by its ID.
 #[utoipa::path(
     get,
     path = "/recipe/{recipe_id}",
@@ -45,6 +62,7 @@ pub async fn get_recipe(
     get_recipe_by_id(db, &recipe_id).await
 }
 
+/// Utoipa-documented handler for fetching a recipe by tags.
 #[utoipa::path(
     get,
     path = "/tagged-recipe",
@@ -74,6 +92,7 @@ pub async fn get_tagged_recipe(
     }
 }
 
+/// Utoipa-documented handler for fetching a random recipe.
 #[utoipa::path(
     get,
     path = "/random-recipe",
@@ -97,6 +116,7 @@ pub async fn get_random_recipe(
     }
 }
 
+/// Utoipa-documented handler for user registration to obtain a JWT.
 #[utoipa::path(
     post,
     path = "/register",
@@ -120,6 +140,7 @@ pub async fn register(
     }
 }
 
+/// Utoipa-documented handler for adding a new recipe to the database.
 #[utoipa::path(
     post,
     path = "/add-recipe",

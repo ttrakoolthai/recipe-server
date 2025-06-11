@@ -1,12 +1,17 @@
-use crate::*;
 use crate::RecipeServerError;
+use crate::*;
 
 use std::collections::HashSet;
 use std::ops::Deref;
 use std::path::Path;
 
 use serde::Deserialize;
+use utoipa::ToSchema;
 
+/// JSON representation of a recipe used for API responses and requests.
+///
+/// This structure includes metadata such as `tags` which are stored
+/// in a set to avoid duplicates.
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct JsonRecipe {
     id: String,
@@ -17,6 +22,9 @@ pub struct JsonRecipe {
     source: String,
 }
 
+/// Internal application representation of a recipe.
+///
+/// This struct is used within the application logic and database operations.
 #[derive(Clone)]
 pub struct Recipe {
     pub id: String,
@@ -26,6 +34,7 @@ pub struct Recipe {
     pub source: String,
 }
 
+/// Reads and parses a list of recipes from a JSON file.
 pub fn read_recipes<P: AsRef<Path>>(recipes_path: P) -> Result<Vec<JsonRecipe>, RecipeServerError> {
     let f = std::fs::File::open(recipes_path.as_ref())?;
     let recipes = serde_json::from_reader(f)?;
@@ -33,6 +42,7 @@ pub fn read_recipes<P: AsRef<Path>>(recipes_path: P) -> Result<Vec<JsonRecipe>, 
 }
 
 impl JsonRecipe {
+    /// Constructs a `JsonRecipe` from a `Recipe` and a list of tags.
     pub fn new(recipe: Recipe, tags: Vec<String>) -> Self {
         let tags = tags.into_iter().collect();
         Self {
@@ -45,6 +55,7 @@ impl JsonRecipe {
         }
     }
 
+    /// Converts a `JsonRecipe` to a `Recipe` and an iterator of tag strings.
     pub fn to_recipe(&self) -> (Recipe, impl Iterator<Item = &str>) {
         let recipe = Recipe {
             id: self.id.clone(),
@@ -59,11 +70,13 @@ impl JsonRecipe {
 }
 
 impl axum::response::IntoResponse for &JsonRecipe {
+    /// Converts the `JsonRecipe` into an HTTP response with JSON content.
     fn into_response(self) -> axum::response::Response {
         (http::StatusCode::OK, axum::Json(&self)).into_response()
     }
 }
 
+/// Fetch a recipe and its tags by ID from the database.
 pub async fn get(db: &SqlitePool, recipe_id: &str) -> Result<(Recipe, Vec<String>), sqlx::Error> {
     let recipe = sqlx::query_as!(
         Recipe,
@@ -87,11 +100,15 @@ pub async fn get(db: &SqlitePool, recipe_id: &str) -> Result<(Recipe, Vec<String
     Ok((recipe, tags))
 }
 
+/// Fetch the ID of a random recipe with matching tags from the database.
 pub async fn get_tagged<'a, I>(db: &SqlitePool, tags: I) -> Result<Option<String>, sqlx::Error>
-    where I: Iterator<Item=&'a str>
+where
+    I: Iterator<Item = &'a str>,
 {
     let mut jtx = db.begin().await?;
-    sqlx::query("DROP TABLE IF EXISTS qtags;").execute(&mut *jtx).await?;
+    sqlx::query("DROP TABLE IF EXISTS qtags;")
+        .execute(&mut *jtx)
+        .await?;
     sqlx::query("CREATE TEMPORARY TABLE qtags (tag VARCHR(200));")
         .execute(&mut *jtx)
         .await?;
@@ -117,12 +134,14 @@ pub async fn get_tagged<'a, I>(db: &SqlitePool, tags: I) -> Result<Option<String
     Ok(result)
 }
 
+/// Fetch the ID of a random recipe from the database.
 pub async fn get_random(db: &SqlitePool) -> Result<String, sqlx::Error> {
     sqlx::query_scalar!("SELECT id FROM recipes ORDER BY RANDOM() LIMIT 1;")
         .fetch_one(db)
         .await
 }
 
+/// Insert a new recipe and its tags into the database.
 pub async fn add(db: &SqlitePool, recipe: JsonRecipe) -> Result<(), sqlx::Error> {
     let mut jtx = db.begin().await?;
 
