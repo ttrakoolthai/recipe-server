@@ -80,15 +80,15 @@ pub fn RecipeLoader() -> impl IntoView {
                 {move || recipe.get().map(|r| view! {
                     <div class="recipe-card" style="border: 1px solid #ccc; border-radius: 8px; padding: 1em; background-color: #f9f9f9; text-align: left;">
                         <h2 style="margin-top: 0;">{r.dish_name}</h2>
-                        <p><strong>Ingredients:</strong> {r.ingredients}</p>
-                        <p><strong>Preparation Time:</strong> {r.time_to_prepare}</p>
+                        <p><strong>Ingredients ": "</strong> {r.ingredients}</p>
+                        <p><strong>Prep Time ": "</strong> {r.time_to_prepare}</p>
                         <p>
-                            <strong>Source:</strong>
+                            <strong>Source ": "</strong>
                             <a href={r.source.clone()} target="_blank" style="margin-left: 0.5em;">
                                 {r.source}
                             </a>
                         </p>
-                        <p><strong>Tags:</strong> {
+                        <p><strong>Tags ": " </strong> {
                             if r.tags.is_empty() {
                                 "None".to_string()
                             } else {
