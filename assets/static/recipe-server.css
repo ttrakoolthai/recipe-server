@@ -1,31 +1,92 @@
-.teller {
-    font-weight: bold;
+/* Base Layout */
+body {
+    font-family: sans-serif;
+    background-color: #fdfdfd;
+    color: #222;
+    max-width: 800px;
+    margin: 2em auto;
+    padding: 1em;
 }
 
-.tellee {
-    font-style: italic;
-}
-
+/* Header */
 h1 {
+    font-size: 2em;
     font-weight: bold;
-    font-size: 150%;
+    text-align: center;
+    margin-bottom: 1em;
 }
 
-.joke {
-    border: 1px solid black;
+/* Recipe Container */
+.recipe-container {
+    padding: 1em;
+    margin: 0 auto;
 }
 
-.source {
-    font-style: italic;
-    font-size: 75%;
+/* Recipe Card Display */
+.recipe-card {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    padding: 1em;
+    text-align: left;
+    margin-bottom: 1.5em;
 }
 
+.recipe-card h2 {
+    margin-top: 0;
+    font-size: 1.5em;
+    color: #333;
+}
+
+.recipe-card p {
+    margin: 0.5em 0;
+}
+
+/* Source Link */
+.recipe-card a {
+    color: #0066cc;
+    text-decoration: none;
+}
+
+.recipe-card a:hover {
+    text-decoration: underline;
+}
+
+/* Tags */
 .tags {
     font-style: italic;
-    font-size: 75%;
-    margin-left: 3em;
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 0.5em;
 }
 
+/* Load Button */
+.load-btn {
+    padding: 0.5em 1.2em;
+    font-size: 1em;
+    border: none;
+    border-radius: 5px;
+    background-color: #3f8efc;
+    color: white;
+    cursor: pointer;
+    margin-top: 1em;
+}
+
+.load-btn:disabled {
+    background-color: #999;
+    cursor: not-allowed;
+}
+
+/* Error Messages */
 .error {
-    color: #881111;
+    color: #cc0000;
+    font-weight: bold;
+    text-align: center;
+    margin-top: 1em;
+}
+
+/* Italic placeholder */
+.loader p {
+    font-style: italic;
+    text-align: center;
 }
