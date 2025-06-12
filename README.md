@@ -103,6 +103,14 @@ The `db/recipes.db` and `secrets/` directory are intentionally included in the r
 
 ⸻
 
+## Attrition
+
+Much of the code, along with the above instructions were taken and adapted from Bart Massey. Source code can be found at https://github.com/pdx-cs-rust-web/knock-knock-2.
+
+ChatGPT was used in the generation of recipes.json and during the development process.
+
+⸻
+
 ## 📄 License
 
 This project is licensed under **Apache 2.0 OR MIT**. See `LICENSE.txt` for details.
