@@ -1,4 +1,5 @@
 target/
 leptos_frontend/target
+leptos_frontend/dist
 # /db/
 # /secrets/

@@ -1,75 +1,96 @@
-# knock-knock-2: A Pure Rust Knock-Knock Joke Webserver, iteration 2
-Bart Massey 2025-04
+# Recipe Server
 
-This… thing uses a Tokio/Axum/Askama/Sqlx/Sqlite stack to
-serve knock-knock jokes.
+**Author:** Tommy Trakoolthai
+**Date:** 2025-06
 
-# Build and Run
+This web application is a recipe management service built entirely in Rust using a modern asynchronous web stack. It leverages **Tokio** for async runtime, **Axum** for routing and HTTP handling, **Askama** for server-side HTML templating, **SQLx** for compile-time verified SQL queries, and **SQLite** for lightweight persistent storage. The service includes:
 
-By default the joke database URI is
-`sqlite://db/knock-knock.db`. You can override this with the
-`DATABASE_URL` environment variable or with the `--db-uri`
-command-line argument.
+* A clean HTML-based frontend powered by Askama templates
+* A fully documented REST API using **Utoipa** and **Swagger UI**
+* A WASM-based browser client (e.g., using **Leptos**) for interacting with the API
+* JWT-based authentication for secure operations
 
-To build and run this code for the first time, you will
-probably want:
+---
 
-    cargo run --release -- --init-from assets/static/jokes.json
+## Build and Run
 
-This will load an initial collection of jokes into the
-newly-created database.
+By default, the database URI is:
 
-## Development
+```
+sqlite://db/recipes.db
+```
 
-For working on the code, you will want to
+If the database does **not** already exist, create it manually with:
 
-    cargo install sqlx-cli
+```bash
+mkdir -p db
+sqlite3 db/recipes.db '.tables'
+```
 
-* `sqlx` migrations are turned on, with reverse
-  sequential migrations. Add a migration called `<name>` with
+You can override this URI using the `DATABASE_URL` environment variable or the `--db-uri` command-line argument.
 
-        sqlx migrate add -r -s <name>
+To build and run the project for the first time and populate it with sample recipes:
 
-  and then edit the migration files. You may want to run
-  
-        sqlx migrate run
+```bash
+cargo run --release -- --init-from assets/static/recipes.json
+```
 
-* `sqlx` compile-time checking of queries against
-  the database schemas is turned on. If you modify the
-  database schemas or the queries in the source code, please
-  run
+---
 
-        DATABASE_URL=sqlite://db/knock-knock.db cargo sqlx prepare
+## Development Notes
 
-  to update things.
+Install the SQLx CLI tool if you haven't:
 
-Because of the above you need to
+```bash
+cargo install sqlx-cli
+```
 
-    git add .sqlx migrations
+To add a new migration (in reverse sequential order):
 
-before committing to ensure things are up to date.
+```bash
+sqlx migrate add -r -s <name>
+```
 
-## Docker
+To run all migrations:
 
+```bash
+sqlx migrate run
+```
 
-Install Docker CE.
+To update compile-time SQLx query checks:
 
-Before building an image, do a release build. Much of the
-image content will come from here. Then build an image with
+```bash
+DATABASE_URL=sqlite://db/recipes.db cargo sqlx prepare
+```
 
-      docker build -t kk2 .
+Before committing, include SQLx metadata and migrations:
 
-You can run the image with
+```bash
+git add .sqlx migrations
+```
 
-      docker run -p 3000:3000 kk2
+---
 
-Note that the image is built with the database from the
-build directory copied in: it will not persist across image
-builds. A named Docker volume could be used for persisting
-the database.
+## Included Files for Grading
+
+The `db/recipes.db` file and `secrets/` directory are included in this repository for **ease of grading**. This ensures the project runs immediately without extra setup.
+
+> ⚠️ In a production or industry setting, these would be excluded via `.gitignore` and configured using environment variables or external secret management.
+
+If omitted, the program will automatically attempt to create the database at `db/recipes.db`, and the user must supply their own `secrets/` directory containing:
+
+* `jwt_secret.txt`
+* `reg_password.txt`
+
+---
+
+## Known Issues / Future Work
+
+* The `main.rs` file is currently too large and monolithic. Future versions will modularize it into smaller, more maintainable components.
+* A working Dockerfile is planned but has not yet been finalized or included in this version.
+
+---
 
 ## License
 
-This work is made available under the "Apache 2.0 or MIT
-License". See the file `LICENSE.txt` in this distribution for
-license terms.
+This project is licensed under **Apache 2.0 OR MIT**. See `LICENSE.txt` for full details.
