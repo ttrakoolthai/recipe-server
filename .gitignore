@@ -1,3 +1,4 @@
-/target/
-/db/
-/secrets/
+target/
+leptos_frontend/target
+# /db/
+# /secrets/
