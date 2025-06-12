@@ -103,7 +103,7 @@ The `db/recipes.db` and `secrets/` directory are intentionally included in the r
 
 ⸻
 
-## Attrition
+## Attribution
 
 Much of the code, along with the above instructions were taken and adapted from Bart Massey. Source code can be found at https://github.com/pdx-cs-rust-web/knock-knock-2.
 
